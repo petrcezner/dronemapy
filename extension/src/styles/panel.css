@@ -1,0 +1,180 @@
+.dronmap-panel-root {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2147483000;
+  pointer-events: auto;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 12px;
+  color: #e8e8e8;
+  max-width: min(720px, calc(100% - 24px));
+}
+
+.dronmap-panel-root.dronmap-panel-hidden {
+  display: none !important;
+}
+
+.dronmap-panel-expanded {
+  background: rgba(26, 26, 46, 0.94);
+  border: 1px solid #374151;
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  padding: 10px 14px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.dronmap-panel-expanded.dronmap-hidden {
+  display: none !important;
+}
+
+.dronmap-panel-expanded h3 {
+  margin: 0 0 8px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #9ca3af;
+}
+
+.dronmap-panel-layers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 12px;
+  margin-bottom: 10px;
+}
+
+.dronmap-panel-layers label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.dronmap-panel-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.dronmap-panel-swiss {
+  margin-bottom: 10px;
+}
+
+.dronmap-panel-swiss button {
+  padding: 4px 10px;
+  border: none;
+  border-radius: 4px;
+  background: #3b82f6;
+  color: #fff;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.dronmap-panel-swiss button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.dronmap-panel-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin-bottom: 8px;
+}
+
+.dronmap-panel-links a {
+  color: #60a5fa;
+  text-decoration: none;
+}
+
+.dronmap-panel-links a:hover {
+  text-decoration: underline;
+}
+
+.dronmap-panel-disclaimer {
+  font-size: 10px;
+  color: #9ca3af;
+  line-height: 1.4;
+}
+
+.dronmap-panel-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  background: rgba(26, 26, 46, 0.94);
+  border: 1px solid #374151;
+  border-radius: 8px;
+  padding: 6px 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+
+.dronmap-panel-root.dronmap-panel-has-expanded .dronmap-panel-bar {
+  border-radius: 0 0 8px 8px;
+  border-top: none;
+}
+
+.dronmap-panel-brand {
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.dronmap-panel-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.dronmap-panel-region {
+  padding: 2px 8px;
+  background: #16213e;
+  border-radius: 4px;
+  color: #60a5fa;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.dronmap-panel-opacity {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 100px;
+}
+
+.dronmap-panel-opacity input[type="range"] {
+  flex: 1;
+  min-width: 60px;
+  max-width: 120px;
+}
+
+.dronmap-panel-btn {
+  padding: 4px 8px;
+  border: 1px solid #374151;
+  border-radius: 4px;
+  background: #1f2937;
+  color: #e8e8e8;
+  cursor: pointer;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.dronmap-panel-btn:hover {
+  background: #374151;
+}
+
+.dronmap-panel-attribution {
+  font-size: 10px;
+  color: #9ca3af;
+  margin-top: 6px;
+}
+
+.dronmap-panel-attribution a {
+  color: #93c5fd;
+}

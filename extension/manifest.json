@@ -1,0 +1,41 @@
+{
+  "manifest_version": 3,
+  "name": "DronMap – Drone Zones on Mapy.com",
+  "version": "1.1.0",
+  "description": "Overlay Swiss, Czech and French UAS drone restriction zones on mapy.com",
+  "permissions": ["storage", "alarms"],
+  "host_permissions": [
+    "https://mapy.com/*",
+    "https://*.mapy.com/*",
+    "https://*.geo.admin.ch/*",
+    "https://data.geo.admin.ch/*",
+    "https://aimgis.rlp.cz/*",
+    "https://aim.rlp.cz/*",
+    "https://data.geopf.fr/*"
+  ],
+  "background": {
+    "service_worker": "src/background/service-worker.ts",
+    "type": "module"
+  },
+  "action": {
+    "default_icon": {
+      "16": "assets/icons/icon16.png",
+      "48": "assets/icons/icon48.png",
+      "128": "assets/icons/icon128.png"
+    },
+    "default_title": "Toggle DronMap panel"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://mapy.com/*", "https://*.mapy.com/*"],
+      "js": ["src/content/main.ts"],
+      "css": ["src/styles/overlay.css", "src/styles/panel.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "16": "assets/icons/icon16.png",
+    "48": "assets/icons/icon48.png",
+    "128": "assets/icons/icon128.png"
+  }
+}

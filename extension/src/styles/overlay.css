@@ -1,0 +1,155 @@
+.dronmap-overlay-root {
+  position: absolute;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 500;
+  --dronmap-opacity: 0.45;
+}
+
+.dronmap-overlay-canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  transform-origin: 0 0;
+  transition: opacity 120ms ease;
+}
+
+.dronmap-overlay-root.dronmap-uncertain .dronmap-overlay-canvas {
+  opacity: 0.6;
+}
+
+.dronmap-overlay-root.dronmap-follow-hidden .dronmap-overlay-canvas {
+  opacity: 0;
+}
+
+.dronmap-zoom-hint {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(26, 26, 46, 0.85);
+  color: #e8e8e8;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 12px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.dronmap-overlay-root.dronmap-hidden {
+  display: none !important;
+}
+
+.dronmap-info-panel {
+  position: fixed;
+  z-index: 2147483001;
+  width: 300px;
+  max-height: 360px;
+  overflow-y: auto;
+  background: #1a1a2e;
+  color: #e8e8e8;
+  border: 1px solid #374151;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  padding: 12px 14px;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  pointer-events: auto;
+}
+
+.dronmap-hidden {
+  display: none !important;
+}
+
+.dronmap-close {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: #9ca3af;
+  font-size: 20px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.dronmap-zone {
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #374151;
+}
+
+.dronmap-zone:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.dronmap-zone h3 {
+  margin: 0 0 6px;
+  font-size: 14px;
+  color: #fff;
+}
+
+.dronmap-source {
+  color: #9ca3af;
+  font-size: 11px;
+}
+
+.dronmap-info-footer {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #374151;
+  color: #9ca3af;
+  font-size: 11px;
+}
+
+.dronmap-info-content a {
+  color: #60a5fa;
+}
+
+.dronmap-legend {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 2147482999;
+  width: 180px;
+  background: rgba(26, 26, 46, 0.94);
+  border: 1px solid #374151;
+  border-radius: 8px;
+  padding: 8px 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  font-family: system-ui, -apple-system, sans-serif;
+  color: #e8e8e8;
+  pointer-events: none;
+}
+
+.dronmap-legend.dronmap-hidden {
+  display: none !important;
+}
+
+.dronmap-legend-title {
+  font-size: 11px;
+  color: #9ca3af;
+  margin-bottom: 6px;
+}
+
+.dronmap-legend-bar {
+  display: flex;
+  height: 10px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.dronmap-legend-bar span {
+  height: 100%;
+}
+
+.dronmap-legend-ticks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: #9ca3af;
+  margin-top: 4px;
+}
