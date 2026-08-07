@@ -1,0 +1,33 @@
+{
+  "name": "dronmap",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint extension/src",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "extension/src/**/*.ts": "eslint --fix"
+  },
+  "devDependencies": {
+    "@crxjs/vite-plugin": "^2.7.1",
+    "@eslint/js": "^10.0.1",
+    "@types/chrome": "^0.0.287",
+    "@types/geojson": "^7946.0.16",
+    "eslint": "^10.8.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.3.0",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.66.0",
+    "vite": "^6.0.3",
+    "vitest": "^4.1.10"
+  }
+}
