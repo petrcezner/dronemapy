@@ -8,6 +8,7 @@ import { austriaCountry } from "./austria";
 import { czechCountry } from "./czech";
 import { franceCountry } from "./france";
 import { germanyCountry } from "./germany";
+import { italyCountry } from "./italy";
 import { polandCountry } from "./poland";
 import { isInsideBounds } from "./regions";
 import { slovakiaCountry } from "./slovakia";
@@ -26,6 +27,7 @@ export const COUNTRY_BY_REGION: Record<Region, CountrySource> = {
   AT: austriaCountry,
   PL: polandCountry,
   SK: slovakiaCountry,
+  IT: italyCountry,
 };
 
 /**
@@ -40,6 +42,7 @@ export const COUNTRY_SOURCES: readonly CountrySource[] = [
   austriaCountry,
   polandCountry,
   slovakiaCountry,
+  italyCountry,
 ];
 
 export function detectRegion(lat: number, lng: number): CountryRegion {

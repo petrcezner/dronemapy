@@ -19,10 +19,11 @@ import {
 import { buildCzechQueryUrl, CZECH_BBOX_SOURCES } from "./czech";
 
 describe("regions", () => {
-  it("detects Switzerland", () => {
+  it("detects Switzerland (no point escapes every neighbour's rectangle)", () => {
     // east of the France bbox (lng 9.6) and south of the Austria bbox (lat
-    // 46.3) to dodge both real border overlaps
-    expect(detectRegion(46.0, 9.9)).toEqual(["CH"]);
+    // 46.3) dodges those two, but Italy's box then necessarily covers it —
+    // the CH rectangle is fully enclosed by its neighbours' rough boxes
+    expect(detectRegion(46.0, 9.9)).toEqual(["CH", "IT"]);
   });
 
   it("detects Czech Republic (Prague also falls in neighbours' rough rectangles)", () => {
@@ -40,7 +41,16 @@ describe("regions", () => {
   });
 
   it("detects Austria", () => {
-    expect(detectRegion(47.07, 15.44)).toEqual(["AT"]); // Graz
+    // Vienna, not Graz: Graz (lat 47.07) sits inside Italy's rough rectangle
+    expect(detectRegion(48.2, 16.37)).toEqual(["AT"]);
+  });
+
+  it("detects Italy", () => {
+    expect(detectRegion(41.9, 12.5)).toEqual(["IT"]); // Rome
+  });
+
+  it("detects overlapping Austrian/Italian border region", () => {
+    expect(detectRegion(46.5, 11.35)).toEqual(["AT", "IT"]); // Bolzano
   });
 
   it("detects Poland", () => {

@@ -1,6 +1,7 @@
 import type {
   CountryRegion,
   ExtensionSettings,
+  ItalyAccessStatus,
   MessageType,
   Units,
 } from "../../types";
@@ -22,9 +23,18 @@ export function masterState(
   return "mixed";
 }
 
+/** Summary shown next to the Italy section header. */
+export function italyStatusLabel(
+  status: ItalyAccessStatus | null | undefined
+): string {
+  return status?.openaip ? "— openAIP key set" : "— not configured";
+}
+
 export interface MapPanelCallbacks {
   onSettingsChange: (partial: Partial<ExtensionSettings>) => void;
   onDownloadSwiss: () => Promise<void>;
+  /** The openAIP key changed — drop caches so Italian zones (re)load. */
+  onItalyAccessChange: () => void;
 }
 
 function regionLabel(region: CountryRegion): string {
@@ -81,6 +91,23 @@ export class MapPanel {
           <label><input type="radio" name="dronmap-units" value="metric" /> Metric (m)</label>
           <label><input type="radio" name="dronmap-units" value="imperial" /> Imperial (ft)</label>
         </div>
+        <div class="dronmap-panel-italy">
+          <h3>Italy data access <span id="dronmap-italy-status">…</span></h3>
+          <p class="dronmap-panel-hint">
+            Italy needs a key you provide. Paste a free
+            <a href="https://www.openaip.net" target="_blank" rel="noopener">openAIP</a>
+            API key for Italian airspace; it is stored on this device only.
+            ENAC/ENAV's <a href="https://www.d-flight.it" target="_blank" rel="noopener">d-flight</a>
+            has no anonymous access and its login is closed to third-party
+            clients, so official Italian UAS geo zones must be checked there.
+          </p>
+          <div class="dronmap-italy-form">
+            <input type="password" id="dronmap-openaip-key" placeholder="openAIP API key" autocomplete="off" />
+            <button type="button" id="dronmap-openaip-save">Save key</button>
+            <button type="button" id="dronmap-openaip-clear">Clear</button>
+          </div>
+          <p class="dronmap-italy-error" id="dronmap-italy-error"></p>
+        </div>
         <div class="dronmap-panel-swiss">
           <h3>Swiss offline cache (optional)</h3>
           <p id="dronmap-swiss-status">Checking…</p>
@@ -89,7 +116,7 @@ export class MapPanel {
         <div class="dronmap-panel-links">
           ${officialLinksHtml()}
         </div>
-        <p class="dronmap-panel-disclaimer">Informational only. Verify on official maps before flying. PL/SK layers show classic airspace, not UAS geo zones.</p>
+        <p class="dronmap-panel-disclaimer">Informational only. Verify on official maps before flying. PL/SK/IT layers show classic airspace, not UAS geo zones.</p>
         <p class="dronmap-panel-attribution">Data: ${attributionHtml()}</p>
       </div>
       <div class="dronmap-panel-bar">
@@ -123,8 +150,50 @@ export class MapPanel {
 
     this.buildLayerInputs();
     this.bindEvents();
+    this.bindItalyEvents();
     this.applySettings(settings);
     void this.updateSwissStatus();
+    void this.updateItalyStatus();
+  }
+
+  private bindItalyEvents(): void {
+    const el = <T extends HTMLElement>(id: string) =>
+      this.root.querySelector(id) as T;
+    const key = el<HTMLInputElement>("#dronmap-openaip-key");
+    const error = el<HTMLParagraphElement>("#dronmap-italy-error");
+
+    const finish = (message = "") => {
+      error.textContent = message;
+      void this.updateItalyStatus();
+      this.callbacks.onItalyAccessChange();
+    };
+
+    el<HTMLButtonElement>("#dronmap-openaip-save").addEventListener(
+      "click",
+      async () => {
+        await sendRuntimeMessage({ type: "SET_OPENAIP_KEY", key: key.value });
+        key.value = "";
+        finish();
+      }
+    );
+
+    el<HTMLButtonElement>("#dronmap-openaip-clear").addEventListener(
+      "click",
+      async () => {
+        await sendRuntimeMessage({ type: "SET_OPENAIP_KEY", key: "" });
+        key.value = "";
+        finish();
+      }
+    );
+  }
+
+  async updateItalyStatus(): Promise<void> {
+    const statusEl = this.root.querySelector("#dronmap-italy-status");
+    if (!statusEl) return;
+    const status = await sendRuntimeMessage<ItalyAccessStatus>({
+      type: "ITALY_STATUS",
+    });
+    statusEl.textContent = italyStatusLabel(status);
   }
 
   private buildLayerInputs(): void {

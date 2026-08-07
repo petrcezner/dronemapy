@@ -17,12 +17,21 @@ DronMap does **not** collect, store, or transmit any personal data. All processi
   - `utm.dronespace.at` (Austria — Austro Control)
   - `airspace.pansa.pl` (Poland — PANSA)
   - `gis.lps.sk` (Slovakia — LPS SR)
+  - `api.core.openaip.net` (Italy — openAIP), **only if you save an openAIP API key**
 - Stores your preferences (layer toggles, opacity) in `chrome.storage.sync`
 - Caches Swiss zone GeoJSON (~13 MB) and per-tile zone data in IndexedDB on your device
 
+## Italian data access (optional)
+
+Italian airspace requires an **openAIP API key that you provide**. It is stored
+in `chrome.storage.local` (local to this device, **not** synced) and is sent
+only to `api.core.openaip.net`. Remove it at any time with the panel's "Clear"
+button. The key is never sent to the extension author or any third party.
+
 ## What we do NOT collect
 
-- No account or login
+- No account with the extension author; the optional openAIP key goes only to
+  openAIP (see above)
 - No analytics or tracking
 - No location history sent to any server
 - No data sold to third parties
@@ -41,6 +50,7 @@ DronMap does **not** collect, store, or transmit any personal data. All processi
 | `utm.dronespace.at` | Fetch Austrian geo zones |
 | `airspace.pansa.pl` | Fetch Polish airspace + daily reservations |
 | `gis.lps.sk` | Fetch Slovak airspace layers |
+| `api.core.openaip.net` | Fetch Italian airspace with your openAIP API key |
 
 ## Contact
 

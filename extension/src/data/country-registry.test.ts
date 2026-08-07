@@ -17,6 +17,7 @@ describe("registry invariants", () => {
       "AT",
       "PL",
       "SK",
+      "IT",
     ]);
     for (const country of COUNTRY_SOURCES) {
       expect(COUNTRY_BY_REGION[country.region]).toBe(country);
@@ -41,6 +42,7 @@ describe("registry invariants", () => {
     expect(prefixes).toContain("cz/chranena_uzemi/0");
     expect(prefixes).toContain("cz/ODOS/0");
     expect(prefixes).toContain("fr/uas");
+    expect(prefixes).toContain("it/openaip");
   });
 
   it("only references real settings layer keys", () => {
@@ -84,6 +86,12 @@ describe("resolveFeatureStyle", () => {
       resolveFeatureStyle({ _dronmap_style_key: "sk/airspace", TYPE_CODE: "CTR" })
         ?.fill
     ).toBe("rgba(234, 179, 8, 0.55)");
+    expect(
+      resolveFeatureStyle({
+        _dronmap_style_key: "italy",
+        _dronmap_class: "prohibited",
+      })?.fill
+    ).toBe("rgba(220, 38, 38, 0.55)");
   });
 
   it("returns null for Swiss/unknown features (generic fallback)", () => {

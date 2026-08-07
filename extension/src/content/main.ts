@@ -138,6 +138,12 @@ class DronMapController {
     this.panel = new MapPanel(document.body, this.settings, {
       onSettingsChange: (partial) => void this.handleSettingsChange(partial),
       onDownloadSwiss: () => this.downloadSwissData(),
+      onItalyAccessChange: () => {
+        // Italian tiles fetched while unconfigured were never cached, but a
+        // sign-out must drop the ones that were
+        this.vectorLoader.clearCache();
+        this.rerenderCurrent();
+      },
     });
   }
 

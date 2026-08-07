@@ -5,6 +5,7 @@ import type {
 } from "../../types";
 import { mergeStoredSettings } from "../../types";
 import { POLAND_AUP_URL, POLAND_STATIC_URL } from "../data/poland";
+import { fetchItalyZones, italyStatus, setOpenAipKey } from "./italy-sources";
 import {
   CH_GEOJSON_URL,
   downloadSwissGeoJson,
@@ -113,6 +114,21 @@ chrome.runtime.onMessage.addListener(
           } catch {
             sendResponse({ features: null });
           }
+          break;
+        }
+        // Italy needs the user's own openAIP key, so the worker owns the
+        // fetch — the key never reaches page context
+        case "SET_OPENAIP_KEY": {
+          await setOpenAipKey(message.key);
+          sendResponse({ ok: true });
+          break;
+        }
+        case "ITALY_STATUS": {
+          sendResponse(await italyStatus());
+          break;
+        }
+        case "FETCH_ITALY_ZONES": {
+          sendResponse(await fetchItalyZones(message.bounds));
           break;
         }
         case "GET_SWISS_TILES": {

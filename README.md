@@ -1,10 +1,10 @@
 # DronMap – Drone Zones on Mapy.com
 
-Chrome extension (Manifest V3) that overlays **Swiss**, **Czech**, **French**, **German**, **Austrian**, **Polish** and **Slovak** UAS drone restriction zones on [mapy.com](https://mapy.com).
+Chrome extension (Manifest V3) that overlays **Swiss**, **Czech**, **French**, **German**, **Austrian**, **Polish**, **Slovak** and **Italian** drone restriction zones on [mapy.com](https://mapy.com).
 
 ## Features
 
-- Auto-loads restriction data based on map viewport (CH / CZ / FR / DE / AT / PL / SK)
+- Auto-loads restriction data based on map viewport (CH / CZ / FR / DE / AT / PL / SK / IT)
 - **Crisp vector overlays** drawn on canvas (no WMS raster layers)
 - **Grid-chunked loading**: only nearby map tiles are fetched where the API allows it
 - **Switzerland**: BAZL zones from [geo.admin.ch](https://map.geo.admin.ch) — online REST per tile; optional offline download indexed into IndexedDB tiles
@@ -14,9 +14,24 @@ Chrome extension (Manifest V3) that overlays **Swiss**, **Czech**, **French**, *
 - **Austria**: Austro Control geo zones from [dronespace.at](https://utm.dronespace.at/avm/) — country-wide GeoJSON fetched once per session, clipped per tile
 - **Poland**: PANSA **classic airspace + daily AUP reservations** from [airspace.pansa.pl](https://airspace.pansa.pl) (see note below)
 - **Slovakia**: LPS SR **classic airspace** ArcGIS bbox queries from [gis.lps.sk](https://gis.lps.sk/vfrm) (see note below)
+- **Italy**: **classic airspace** from [openAIP](https://www.openaip.net) — **requires a free API key you paste into the panel** (see note below)
 - **In-map bottom toolbar** for all controls (no Chrome popup)
 - Click map (without dragging) for zone details
 - Optimized rendering: updates on pan/zoom settle, not during gesture
+
+### Note on Italy coverage
+
+Italy's official UAS geo zones are **not available** to this extension. ENAC/ENAV's
+d-flight platform gates every geodata endpoint behind a login
+(`allowAnonUser: false`), protects that login with a client-specific CSRF
+handshake that only its own web app can produce, and publishes no open ED-269
+mirror. Check official Italian geo zones on [d-flight](https://www.d-flight.it/web-app/).
+
+What the extension can show is **classic airspace (P/R/D/CTR/ATZ…)** from
+openAIP. Paste a free [openAIP API key](https://www.openaip.net) into the
+panel's **Italy data access** field; it is stored on your device only (see
+[PRIVACY.md](PRIVACY.md)). Until then, clicking in Italy shows a hint instead
+of zones.
 
 ### Note on Poland & Slovakia coverage
 
@@ -36,6 +51,7 @@ This extension is an **informational aid only**. Always verify restrictions on o
 - Austria: [dronespace.at](https://utm.dronespace.at/avm/)
 - Poland: [dronemap.pansa.pl](https://dronemap.pansa.pl)
 - Slovakia: [NSAT geo zones](https://letectvo.nsat.sk/bezpilotne-letectvo/zemepisne-oblasti-uas/) + [VFR Manual](https://gis.lps.sk/vfrm)
+- Italy: [d-flight](https://www.d-flight.it/web-app/)
 
 ## Development
 
@@ -118,6 +134,7 @@ extension/
 | Austria | [utm.dronespace.at](https://utm.dronespace.at/avm/) GeoJSON | © Austro Control GmbH (dronespace.at) |
 | Poland | [airspace.pansa.pl](https://airspace.pansa.pl) JSON | PAŻP / PANSA — informational, verify NOTAM/AUP |
 | Slovakia | [gis.lps.sk](https://gis.lps.sk/vfrm) ArcGIS | "VFR Manual, LPS SR š. p." – [gis.lps.sk/vfrm](https://gis.lps.sk/vfrm) |
+| Italy | [openAIP](https://www.openaip.net) API (user's key) | openAIP contributors — airspace, not UAS geo zones |
 
 ## Privacy
 

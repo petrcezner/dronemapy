@@ -58,6 +58,15 @@ export const SLOVAKIA_BOUNDS: RegionBounds = {
   north: 49.7,
 };
 
+// Mainland + islands; the rectangle unavoidably covers Corsica (FR), Ticino
+// (CH) and southern Austria — overlapping boxes just mean both countries fetch.
+export const ITALY_BOUNDS: RegionBounds = {
+  west: 6.6,
+  south: 35.4,
+  east: 18.6,
+  north: 47.1,
+};
+
 export function isInsideBounds(
   lat: number,
   lng: number,

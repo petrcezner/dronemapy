@@ -1,6 +1,6 @@
 import type { Feature, FeatureCollection, Geometry } from "geojson";
 
-export type Region = "CH" | "CZ" | "FR" | "DE" | "AT" | "PL" | "SK";
+export type Region = "CH" | "CZ" | "FR" | "DE" | "AT" | "PL" | "SK" | "IT";
 /** Every region whose bounding box contains the point — boxes can overlap (e.g. CH/FR border). */
 export type CountryRegion = Region[];
 
@@ -41,6 +41,7 @@ export interface ExtensionSettings {
     austria: boolean;
     poland: boolean;
     slovakia: boolean;
+    italy: boolean;
   };
 }
 
@@ -64,6 +65,7 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
     austria: true,
     poland: true,
     slovakia: true,
+    italy: true,
   },
 };
 
@@ -112,11 +114,19 @@ export type SwissFeatureCollection = FeatureCollection<
   SwissFeatureProperties
 >;
 
+/** Whether Italian data access is configured (ITALY_STATUS response). */
+export interface ItalyAccessStatus {
+  openaip: boolean;
+}
+
 export type MessageType =
   | { type: "GET_SETTINGS" }
   | { type: "SET_SETTINGS"; settings: Partial<ExtensionSettings> }
   | { type: "GET_SWISS_TILES"; tileIds: string[] }
   | { type: "FETCH_POLAND_AIRSPACE"; feed: "static" | "aup" }
+  | { type: "ITALY_STATUS" }
+  | { type: "SET_OPENAIP_KEY"; key: string }
+  | { type: "FETCH_ITALY_ZONES"; bounds: MapViewport["bounds"] }
   | { type: "SWISS_DATA_STATUS" }
   | { type: "DOWNLOAD_SWISS_DATA" }
   | { type: "SETTINGS_UPDATED"; settings: ExtensionSettings }
