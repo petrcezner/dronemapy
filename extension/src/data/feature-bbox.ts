@@ -19,7 +19,7 @@ export function featureBBox(
   if (cached !== undefined) return cached;
 
   const g = feature.geometry;
-  let coords: number[][] = [];
+  let coords: number[][];
   if (g.type === "Polygon") coords = g.coordinates[0] ?? [];
   else if (g.type === "MultiPolygon") {
     coords = g.coordinates.flatMap((p) => p[0] ?? []);

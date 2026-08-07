@@ -1,5 +1,7 @@
 # DronMap – Drone Zones on Mapy.com
 
+![CI](https://github.com/petrcezner/dronemapy/actions/workflows/ci.yml/badge.svg?branch=develop)
+
 Chrome extension (Manifest V3) that overlays **Swiss**, **Czech**, **French**, **German**, **Austrian**, **Polish**, **Slovak** and **Italian** drone restriction zones on [mapy.com](https://mapy.com).
 
 ## Features
@@ -57,7 +59,7 @@ This extension is an **informational aid only**. Always verify restrictions on o
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js 20+ (CI runs Node 22, see `.nvmrc`)
 - Google Chrome
 
 ### Setup
