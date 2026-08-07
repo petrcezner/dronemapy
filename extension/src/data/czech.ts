@@ -214,11 +214,12 @@ export const czechCountry: CountrySource = {
     fetchForBounds: (bounds: MapViewport["bounds"]) =>
       fetchCzechSourceFeatures(source, bounds),
   })),
+  // no country prefix — the panel groups these under a Czech Republic row
   layerToggles: [
-    { key: "czechHop", label: "CZ – Population density" },
-    { key: "czechGrids", label: "CZ – Airport grids" },
-    { key: "czechProtected", label: "CZ – Protected areas" },
-    { key: "czechMilitary", label: "CZ – Military" },
+    { key: "czechHop", label: "Population density" },
+    { key: "czechGrids", label: "Airport grids" },
+    { key: "czechProtected", label: "Protected areas" },
+    { key: "czechMilitary", label: "Military" },
   ],
   getStyle: getCzechStyle,
   queryPoint: queryCzechZones,

@@ -161,10 +161,11 @@ export const germanyCountry: CountrySource = {
     fetchForBounds: (bounds: MapViewport["bounds"]) =>
       fetchGermanySourceFeatures(source, bounds),
   })),
+  // no country prefix — the panel groups these under a Germany row
   layerToggles: [
-    { key: "germanyAirspace", label: "DE – Airspace (DIPUL)" },
-    { key: "germanyMilitary", label: "DE – Military" },
-    { key: "germanyNature", label: "DE – Nature reserves" },
+    { key: "germanyAirspace", label: "Airspace (DIPUL)" },
+    { key: "germanyMilitary", label: "Military" },
+    { key: "germanyNature", label: "Nature reserves" },
   ],
   getStyle: getGermanyStyle,
   queryPoint: queryGermanyZones,

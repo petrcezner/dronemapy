@@ -79,6 +79,7 @@ class DronMapController {
       if (message.type === "SETTINGS_UPDATED") {
         this.settings = message.settings;
         this.panel?.applySettings(this.settings);
+        this.legend?.setUnits(this.settings.units);
         if (!this.clickPopupsEnabled()) this.clickHandler?.hide();
         this.vectorLoader.clearCache();
         this.rerenderCurrent();
@@ -128,10 +129,11 @@ class DronMapController {
     this.clickHandler.attach(
       container,
       () => this.adapter.getViewport(),
-      () => this.clickPopupsEnabled()
+      () => this.clickPopupsEnabled(),
+      () => this.settings.units
     );
     this.attachDragFollow(container);
-    this.legend = new AltitudeLegend(document.body);
+    this.legend = new AltitudeLegend(document.body, this.settings.units);
 
     this.panel = new MapPanel(document.body, this.settings, {
       onSettingsChange: (partial) => void this.handleSettingsChange(partial),
@@ -347,6 +349,9 @@ class DronMapController {
     }
     if (partial.clickPopups === false) {
       this.clickHandler?.hide();
+    }
+    if (partial.units) {
+      this.legend?.setUnits(partial.units);
     }
     await saveSettings(partial);
     this.rerenderCurrent();

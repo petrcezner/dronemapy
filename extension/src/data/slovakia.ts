@@ -162,7 +162,7 @@ export const slovakiaCountry: CountrySource = {
       fetchForBounds: fetchSlovakiaFeaturesForBounds,
     },
   ],
-  layerToggles: [{ key: "slovakia", label: "SK – Airspace (LPS SR)" }],
+  layerToggles: [{ key: "slovakia", label: "Slovakia – Airspace (LPS SR)" }],
   getStyle: getSlovakiaStyle,
   queryPoint: querySlovakiaZones,
   officialMap: { label: "VFR Manual SK", url: "https://gis.lps.sk/vfrm" },

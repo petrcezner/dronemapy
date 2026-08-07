@@ -1,6 +1,7 @@
-import type { MapViewport, ZoneInfo } from "../../types";
+import type { MapViewport, Units, ZoneInfo } from "../../types";
 import { COUNTRY_SOURCES, detectRegion } from "../data/country-registry";
 import { pixelToLngLat } from "../data/projection";
+import { convertAltitudeText } from "../data/units";
 
 const CLICK_MAX_MOVE_PX = 6;
 
@@ -16,6 +17,7 @@ export class ClickHandler {
   private mapTarget: HTMLElement | null = null;
   private pointerDown: { x: number; y: number } | null = null;
   private isEnabled: () => boolean = () => true;
+  private getUnits: () => Units = () => "metric";
   private getViewport: () => MapViewport | null = () => null;
   private onPointerDown: ((e: PointerEvent) => void) | null = null;
   private onPointerUp: ((e: PointerEvent) => void) | null = null;
@@ -40,12 +42,14 @@ export class ClickHandler {
   attach(
     mapTarget: HTMLElement,
     getViewport: () => MapViewport | null,
-    isEnabled: () => boolean
+    isEnabled: () => boolean,
+    getUnits: () => Units = () => "metric"
   ): void {
     this.detach();
     this.mapTarget = mapTarget;
     this.getViewport = getViewport;
     this.isEnabled = isEnabled;
+    this.getUnits = getUnits;
 
     const onPointerDown = (e: PointerEvent) => {
       if (!this.isEnabled()) return;
@@ -151,13 +155,17 @@ export class ClickHandler {
     const content = this.panel.querySelector(".dronmap-info-content");
     if (!content) return;
 
+    // sources mix metres and feet — normalize every displayed altitude
+    const units = this.getUnits();
+    const inUnits = (text: string) => convertAltitudeText(text, units);
+
     content.innerHTML = zones
       .map(
         (z) => `
         <div class="dronmap-zone">
           <h3>${escapeHtml(z.name)}</h3>
-          <p><strong>Restriction:</strong> ${escapeHtml(z.restriction)}</p>
-          ${z.altitude ? `<p><strong>Altitude:</strong> ${escapeHtml(z.altitude)}</p>` : ""}
+          <p><strong>Restriction:</strong> ${escapeHtml(inUnits(z.restriction))}</p>
+          ${z.altitude ? `<p><strong>Altitude:</strong> ${escapeHtml(inUnits(z.altitude))}</p>` : ""}
           ${z.authority ? `<p><strong>Authority:</strong> ${escapeHtml(z.authority)}</p>` : ""}
           ${z.email ? `<p><strong>Contact:</strong> <a href="mailto:${escapeHtml(z.email)}">${escapeHtml(z.email)}</a></p>` : ""}
           <p class="dronmap-source"><em>Source: ${escapeHtml(z.source)}</em></p>

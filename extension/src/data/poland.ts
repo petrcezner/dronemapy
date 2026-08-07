@@ -182,7 +182,7 @@ export const polandCountry: CountrySource = {
         fetchPolandFeedForBounds("aup", bounds),
     },
   ],
-  layerToggles: [{ key: "poland", label: "PL – Airspace (PANSA)" }],
+  layerToggles: [{ key: "poland", label: "Poland – Airspace (PANSA)" }],
   getStyle: getPolandStyle,
   queryPoint: queryPolandZones,
   officialMap: { label: "DroneMap PL", url: "https://dronemap.pansa.pl" },

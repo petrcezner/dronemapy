@@ -1,6 +1,26 @@
-import type { CountryRegion, ExtensionSettings, MessageType } from "../../types";
+import type {
+  CountryRegion,
+  ExtensionSettings,
+  MessageType,
+  Units,
+} from "../../types";
 import { COUNTRY_BY_REGION, COUNTRY_SOURCES } from "../data/country-registry";
 import { sendRuntimeMessage } from "../shared/runtime-messaging";
+
+type LayerKey = keyof ExtensionSettings["layers"];
+
+export type MasterState = "on" | "off" | "mixed";
+
+/** Aggregate state of a country's layer toggles; missing keys count as on. */
+export function masterState(
+  layers: ExtensionSettings["layers"],
+  keys: LayerKey[]
+): MasterState {
+  const on = keys.filter((k) => layers[k] !== false).length;
+  if (on === keys.length) return "on";
+  if (on === 0) return "off";
+  return "mixed";
+}
 
 export interface MapPanelCallbacks {
   onSettingsChange: (partial: Partial<ExtensionSettings>) => void;
@@ -37,6 +57,8 @@ export class MapPanel {
   private downloadBtn: HTMLButtonElement;
   private clickPopupsEl: HTMLInputElement;
   private layerInputs: Record<string, HTMLInputElement> = {};
+  private masterInputs: { input: HTMLInputElement; keys: LayerKey[] }[] = [];
+  private unitInputs: HTMLInputElement[] = [];
   private callbacks: MapPanelCallbacks;
   private settings: ExtensionSettings;
 
@@ -54,6 +76,11 @@ export class MapPanel {
           <input type="checkbox" id="dronmap-click-popups" />
           <span>Show zone info pop-up on click</span>
         </label>
+        <div class="dronmap-panel-units">
+          <span>Units</span>
+          <label><input type="radio" name="dronmap-units" value="metric" /> Metric (m)</label>
+          <label><input type="radio" name="dronmap-units" value="imperial" /> Imperial (ft)</label>
+        </div>
         <div class="dronmap-panel-swiss">
           <h3>Swiss offline cache (optional)</h3>
           <p id="dronmap-swiss-status">Checking…</p>
@@ -90,6 +117,9 @@ export class MapPanel {
     this.swissStatusEl = this.root.querySelector("#dronmap-swiss-status") as HTMLParagraphElement;
     this.downloadBtn = this.root.querySelector("#dronmap-download-swiss") as HTMLButtonElement;
     this.clickPopupsEl = this.root.querySelector("#dronmap-click-popups") as HTMLInputElement;
+    this.unitInputs = [
+      ...this.root.querySelectorAll<HTMLInputElement>("input[name='dronmap-units']"),
+    ];
 
     this.buildLayerInputs();
     this.bindEvents();
@@ -99,21 +129,67 @@ export class MapPanel {
 
   private buildLayerInputs(): void {
     const container = this.root.querySelector("#dronmap-layers")!;
-    const layers: { id: keyof ExtensionSettings["layers"]; label: string }[] =
-      COUNTRY_SOURCES.flatMap((c) =>
-        c.layerToggles.map((t) => ({ id: t.key, label: t.label }))
-      );
+    // display order only — registry order still drives detection/styles
+    const countries = [...COUNTRY_SOURCES].sort((a, b) =>
+      a.displayName.localeCompare(b.displayName)
+    );
 
-    for (const layer of layers) {
+    for (const country of countries) {
+      const row = document.createElement("div");
+      row.className = "dronmap-layer-country";
+
+      // single-layer country: its one checkbox IS the country row
+      if (country.layerToggles.length === 1) {
+        const toggle = country.layerToggles[0];
+        row.appendChild(this.makeLayerCheckbox(toggle.key, toggle.label));
+        container.appendChild(row);
+        continue;
+      }
+
+      // master checkbox toggling every sub-layer at once
+      const keys = country.layerToggles.map((t) => t.key);
       const label = document.createElement("label");
-      const input = document.createElement("input");
-      input.type = "checkbox";
-      input.id = `dronmap-layer-${layer.id}`;
-      label.appendChild(input);
-      label.appendChild(document.createTextNode(layer.label));
-      container.appendChild(label);
-      this.layerInputs[layer.id] = input;
+      const master = document.createElement("input");
+      master.type = "checkbox";
+      master.id = `dronmap-master-${country.region}`;
+      label.appendChild(master);
+      label.appendChild(document.createTextNode(country.displayName));
+      row.appendChild(label);
+
+      const expander = document.createElement("button");
+      expander.type = "button";
+      expander.className = "dronmap-layer-expander";
+      expander.textContent = "▸";
+      expander.setAttribute("aria-label", `Show ${country.displayName} layers`);
+      row.appendChild(expander);
+      container.appendChild(row);
+
+      const sublist = document.createElement("div");
+      sublist.className = "dronmap-layer-sublist dronmap-hidden";
+      for (const toggle of country.layerToggles) {
+        sublist.appendChild(this.makeLayerCheckbox(toggle.key, toggle.label));
+      }
+      container.appendChild(sublist);
+
+      // expand state is session-local on purpose — not worth persisting
+      expander.addEventListener("click", () => {
+        const hidden = sublist.classList.toggle("dronmap-hidden");
+        expander.textContent = hidden ? "▸" : "▾";
+      });
+
+      this.masterInputs.push({ input: master, keys });
     }
+  }
+
+  private makeLayerCheckbox(key: LayerKey, labelText: string): HTMLLabelElement {
+    const label = document.createElement("label");
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.id = `dronmap-layer-${key}`;
+    label.appendChild(input);
+    label.appendChild(document.createTextNode(labelText));
+    this.layerInputs[key] = input;
+    return label;
   }
 
   private bindEvents(): void {
@@ -136,6 +212,23 @@ export class MapPanel {
         this.callbacks.onSettingsChange({
           layers: { [key]: input.checked } as ExtensionSettings["layers"],
         });
+      });
+    }
+
+    for (const { input, keys } of this.masterInputs) {
+      input.addEventListener("change", () => {
+        const layers = Object.fromEntries(
+          keys.map((k) => [k, input.checked])
+        ) as unknown as ExtensionSettings["layers"];
+        this.callbacks.onSettingsChange({ layers });
+      });
+    }
+
+    for (const radio of this.unitInputs) {
+      radio.addEventListener("change", () => {
+        if (radio.checked) {
+          this.callbacks.onSettingsChange({ units: radio.value as Units });
+        }
       });
     }
 
@@ -170,6 +263,16 @@ export class MapPanel {
       // missing key = stored settings predate this layer → default enabled
       input.checked =
         settings.layers[key as keyof typeof settings.layers] !== false;
+    }
+
+    for (const { input, keys } of this.masterInputs) {
+      const state = masterState(settings.layers, keys);
+      input.checked = state === "on";
+      input.indeterminate = state === "mixed";
+    }
+
+    for (const radio of this.unitInputs) {
+      radio.checked = radio.value === settings.units;
     }
 
     this.root.classList.toggle("dronmap-panel-hidden", !settings.panelVisible);

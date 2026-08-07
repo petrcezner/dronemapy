@@ -17,6 +17,8 @@ export interface MapViewport {
   };
 }
 
+export type Units = "metric" | "imperial";
+
 export interface ExtensionSettings {
   enabled: boolean;
   opacity: number;
@@ -24,6 +26,8 @@ export interface ExtensionSettings {
   panelExpanded: boolean;
   /** Show the zone-info pop-up when the map is clicked. */
   clickPopups: boolean;
+  /** Unit system for all displayed altitudes (popups, legend). */
+  units: Units;
   layers: {
     switzerland: boolean;
     czechHop: boolean;
@@ -46,6 +50,7 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
   panelVisible: true,
   panelExpanded: false,
   clickPopups: true,
+  units: "metric",
   layers: {
     switzerland: true,
     czechHop: true,

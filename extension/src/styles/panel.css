@@ -38,9 +38,9 @@
 }
 
 .dronmap-panel-layers {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   margin-bottom: 10px;
 }
 
@@ -48,6 +48,55 @@
   display: flex;
   align-items: center;
   gap: 6px;
+  cursor: pointer;
+}
+
+.dronmap-layer-country {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dronmap-layer-expander {
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  cursor: pointer;
+  font-size: 11px;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+.dronmap-layer-expander:hover {
+  color: #e8e8e8;
+}
+
+.dronmap-layer-sublist {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-left: 20px;
+}
+
+.dronmap-layer-sublist.dronmap-hidden {
+  display: none !important;
+}
+
+.dronmap-panel-units {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.dronmap-panel-units > span {
+  color: #9ca3af;
+}
+
+.dronmap-panel-units label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   cursor: pointer;
 }
 
