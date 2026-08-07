@@ -20,6 +20,14 @@ interface ParsedMapyUrl {
   zoom: number;
 }
 
+function debugEnabled(): boolean {
+  try {
+    return localStorage.getItem("dronmap-debug") === "1";
+  } catch {
+    return false;
+  }
+}
+
 function parseMapyUrl(url: string): ParsedMapyUrl | null {
   try {
     const parsed = new URL(url);
@@ -64,11 +72,18 @@ export class MapyMapAdapter {
   private lastMovingFingerprint = "";
   private defaultCenter = { lat: 49.8, lng: 15.5 };
   private defaultZoom = 7;
+  private containerAttempts = 0;
+  private started = false;
 
   start(): void {
     this.findMapContainer();
-    this.hookHistory();
-    this.attachEvents();
+    // start() is retried by the mount loop until a map container exists —
+    // history/event hooks must only ever be installed once
+    if (!this.started) {
+      this.started = true;
+      this.hookHistory();
+      this.attachEvents();
+    }
     this.emitMovingIfChanged();
     this.emitSettled();
   }
@@ -104,13 +119,16 @@ export class MapyMapAdapter {
   }
 
   private findMapContainer(): void {
+    // mapy.com renders the map into `div.smap#map`; side panels live outside
+    // it, so its rect is the actual visible map area — try it first.
     const candidates = [
+      "#map",
+      ".smap",
+      ".map-container",
       "canvas.map",
       "[class*='map'] canvas",
       "canvas",
       "[class*='Map']",
-      "#map",
-      ".map-container",
     ];
 
     for (const selector of candidates) {
@@ -124,7 +142,12 @@ export class MapyMapAdapter {
       }
     }
 
-    this.mapContainer = document.body;
+    // Body means "not found yet" — the map div often mounts after us. Keep
+    // retrying for a while (computeViewport re-runs this) before locking onto
+    // body permanently; a body-sized container misplaces the overlay next to
+    // mapy's side panels.
+    this.containerAttempts++;
+    this.mapContainer = this.containerAttempts > 10 ? document.body : null;
   }
 
   private hookHistory(): void {
@@ -202,8 +225,19 @@ export class MapyMapAdapter {
     // Their URLs encode z/x/y and their rects give the exact screen mapping —
     // this cannot disagree with what the user sees, regardless of URL
     // conventions, panels, or canvas layout.
-    const calib = calibrate(collectTileSamples(document));
+    const samples = collectTileSamples(document);
+    const calib = calibrate(samples);
     if (calib) {
+      if (debugEnabled()) {
+        console.debug("[DronMap] viewport via tiles", {
+          zoom: calib.zoom,
+          k: calib.k,
+          sampleCount: calib.sampleCount,
+          totalTileImgs: samples.length,
+          originX: calib.originX,
+          originY: calib.originY,
+        });
+      }
       return viewportFromCalibration(calib, {
         left: rect.left,
         top: rect.top,
@@ -214,6 +248,13 @@ export class MapyMapAdapter {
 
     // Fallback: reconstruct from the URL.
     const parsed = parseMapyUrl(window.location.href);
+    if (debugEnabled()) {
+      console.debug("[DronMap] viewport via url-fallback", {
+        parsed,
+        tileImgsFound: samples.length,
+        rect: { left: rect.left, top: rect.top, width, height },
+      });
+    }
     const center = parsed
       ? { lat: parsed.lat, lng: parsed.lng }
       : this.defaultCenter;

@@ -1,10 +1,10 @@
 import { describe, it, expect } from "vitest";
 import {
-  detectRegion,
   isInsideBounds,
   SWITZERLAND_BOUNDS,
   CZECH_BOUNDS,
 } from "./regions";
+import { detectRegion } from "./country-registry";
 import {
   lngLatToMercator,
   mercatorToLngLat,
@@ -20,24 +20,43 @@ import { buildCzechQueryUrl, CZECH_BBOX_SOURCES } from "./czech";
 
 describe("regions", () => {
   it("detects Switzerland", () => {
-    // east of the France bbox (which stops at lng 9.6) to avoid the real CH/FR overlap
-    expect(detectRegion(46.5, 9.8)).toEqual(["CH"]);
+    // east of the France bbox (lng 9.6) and south of the Austria bbox (lat
+    // 46.3) to dodge both real border overlaps
+    expect(detectRegion(46.0, 9.9)).toEqual(["CH"]);
   });
 
-  it("detects Czech Republic", () => {
-    expect(detectRegion(50.08, 14.43)).toEqual(["CZ"]);
+  it("detects Czech Republic (Prague also falls in neighbours' rough rectangles)", () => {
+    // Germany wraps around Bohemia and Poland's box reaches west for the
+    // Szczecin strip, so both rectangles necessarily cover Prague
+    expect(detectRegion(50.08, 14.43)).toEqual(["CZ", "DE", "PL"]);
   });
 
   it("detects France", () => {
     expect(detectRegion(48.8566, 2.3522)).toEqual(["FR"]);
   });
 
+  it("detects Germany", () => {
+    expect(detectRegion(52.5, 13.4)).toEqual(["DE"]); // Berlin
+  });
+
+  it("detects Austria", () => {
+    expect(detectRegion(47.07, 15.44)).toEqual(["AT"]); // Graz
+  });
+
+  it("detects Poland", () => {
+    expect(detectRegion(52.23, 21.01)).toEqual(["PL"]); // Warsaw
+  });
+
   it("detects overlapping Swiss/French border region", () => {
     expect(detectRegion(46.2, 6.1)).toEqual(["CH", "FR"]);
   });
 
+  it("detects overlapping Austrian/Slovak border region", () => {
+    expect(detectRegion(48.15, 17.1)).toEqual(["AT", "SK"]); // Bratislava
+  });
+
   it("detects outside regions", () => {
-    expect(detectRegion(52.5, 13.4)).toEqual([]);
+    expect(detectRegion(51.5, -0.12)).toEqual([]); // London
   });
 
   it("checks bounds correctly", () => {

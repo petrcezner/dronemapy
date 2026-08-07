@@ -1,5 +1,7 @@
 import type { Feature, Geometry } from "geojson";
 import type { MapViewport, ZoneInfo } from "../../types";
+import type { CountrySource } from "./country-source";
+import { FRANCE_BOUNDS } from "./regions";
 
 // IGN Géoplateforme WFS — "Restrictions UAS catégorie ouverte et aéromodélisme".
 // Unlike Switzerland/Czech Republic there's a single national layer, no per-topic
@@ -140,3 +142,24 @@ export async function queryFranceZones(
     return [];
   }
 }
+
+export const franceCountry: CountrySource = {
+  region: "FR",
+  displayName: "France",
+  bounds: FRANCE_BOUNDS,
+  sources: [
+    {
+      cacheKeyPrefix: "fr/uas",
+      settingKey: "france",
+      fetchForBounds: fetchFranceFeaturesForBounds,
+    },
+  ],
+  layerToggles: [{ key: "france", label: "France (DGAC)" }],
+  getStyle: getFranceStyle,
+  queryPoint: queryFranceZones,
+  officialMap: {
+    label: "Géoportail",
+    url: "https://www.geoportail.gouv.fr/donnees/restrictions-uas-categorie-ouverte-et-aeromodelisme",
+  },
+  attribution: { label: "DGAC", url: "https://www.geoportail.gouv.fr" },
+};

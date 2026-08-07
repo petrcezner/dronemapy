@@ -1,31 +1,22 @@
 import type { Feature, Geometry } from "geojson";
-import type { CountryRegion, ExtensionSettings, MapViewport } from "../../types";
-import {
-  enabledCzechSources,
-  fetchCzechSourceFeatures,
-  type CzechBboxSource,
-} from "./czech";
+import type {
+  CountryRegion,
+  ExtensionSettings,
+  MapViewport,
+  Region,
+} from "../../types";
+import type { ActiveSource } from "./country-registry";
+import { activeSourcesFor, COUNTRY_SOURCES } from "./country-registry";
+import type { CountrySource, CountrySubSource } from "./country-source";
 import { dedupeFeatures, filterFeaturesToBounds } from "./feature-bbox";
-import { fetchFranceFeaturesForBounds } from "./france";
 import { tilesForBounds, tileBounds } from "./grid";
 import { clampBoundsToRadius, MAX_FETCH_RADIUS_KM } from "./regional-bounds";
-import { sendRuntimeMessage } from "../shared/runtime-messaging";
-import { fetchSwissFeaturesForBounds } from "./switzerland";
 import { TileFeatureCache } from "./tile-feature-cache";
 import { getZoneEntries, putZoneEntries } from "./zone-tile-cache";
 
 const PADDING_TILES = 1;
 /** A tile with a failed source is retried after this long instead of staying empty. */
 const FAILED_TILE_RETRY_MS = 15_000;
-
-async function fetchSwissTilesFromIdb(
-  tileIds: string[]
-): Promise<Record<string, Feature<Geometry>[]>> {
-  const response = await sendRuntimeMessage<{
-    tiles?: Record<string, Feature<Geometry>[]>;
-  }>({ type: "GET_SWISS_TILES", tileIds });
-  return response?.tiles ?? {};
-}
 
 // The persistent cache is read/written directly from the content script —
 // routing megabytes of GeoJSON through extension messaging (double structured
@@ -46,10 +37,8 @@ function zoneCachePut(entries: Record<string, Feature<Geometry>[]>): void {
   putZoneEntries(entries).catch(() => {});
 }
 
-const swissKey = (tileId: string) => `ch/identify/${tileId}`;
-const czechKey = (source: CzechBboxSource, tileId: string) =>
-  `cz/${source.service}/${source.layerId}/${tileId}`;
-const franceKey = (tileId: string) => `fr/uas/${tileId}`;
+const persistKey = (sub: CountrySubSource, tileId: string) =>
+  `${sub.cacheKeyPrefix}/${tileId}`;
 
 export class VectorLoader {
   /** Called whenever a tile's data lands in the memory cache (progressive draw). */
@@ -58,7 +47,10 @@ export class VectorLoader {
   private generation = 0;
   private inflight = new Map<string, Promise<void>>();
 
-  constructor(private memoryCache = new TileFeatureCache()) {}
+  constructor(
+    private memoryCache = new TileFeatureCache(),
+    private registry: readonly CountrySource[] = COUNTRY_SOURCES
+  ) {}
 
   clearCache(): void {
     this.memoryCache.clear();
@@ -70,16 +62,16 @@ export class VectorLoader {
     region: CountryRegion,
     settings: ExtensionSettings
   ): Promise<Feature<Geometry>[]> {
-    const { clampedBounds, tileIds, needSwiss, needCzech, needFrance } = this.plan(
+    const { clampedBounds, tileIds, active } = this.plan(
       viewport,
       region,
       settings
     );
-    if (!needSwiss && !needCzech && !needFrance) return [];
+    if (active.length === 0) return [];
 
     const missing = this.memoryCache.getMissing(tileIds);
     if (missing.length > 0) {
-      await this.fetchMissingTiles(missing, needSwiss, needCzech, needFrance, settings);
+      await this.fetchMissingTiles(missing, active);
     }
 
     return this.collect(tileIds, clampedBounds);
@@ -91,8 +83,8 @@ export class VectorLoader {
     region: CountryRegion,
     settings: ExtensionSettings
   ): boolean {
-    const { tileIds, needSwiss, needCzech, needFrance } = this.plan(viewport, region, settings);
-    if (!needSwiss && !needCzech && !needFrance) return true;
+    const { tileIds, active } = this.plan(viewport, region, settings);
+    if (active.length === 0) return true;
     return this.memoryCache.getMissing(tileIds).length === 0;
   }
 
@@ -102,12 +94,12 @@ export class VectorLoader {
     region: CountryRegion,
     settings: ExtensionSettings
   ): Feature<Geometry>[] {
-    const { clampedBounds, tileIds, needSwiss, needCzech, needFrance } = this.plan(
+    const { clampedBounds, tileIds, active } = this.plan(
       viewport,
       region,
       settings
     );
-    if (!needSwiss && !needCzech && !needFrance) return [];
+    if (active.length === 0) return [];
     return this.collect(tileIds, clampedBounds);
   }
 
@@ -124,9 +116,7 @@ export class VectorLoader {
     return {
       clampedBounds,
       tileIds: tilesForBounds(clampedBounds, PADDING_TILES),
-      needSwiss: region.includes("CH") && settings.layers.switzerland,
-      needCzech: region.includes("CZ") && this.hasCzechLayer(settings.layers),
-      needFrance: region.includes("FR") && settings.layers.france,
+      active: activeSourcesFor(region, settings.layers, this.registry),
     };
   }
 
@@ -139,56 +129,45 @@ export class VectorLoader {
     return filterFeaturesToBounds(deduped, bounds);
   }
 
-  private hasCzechLayer(layers: ExtensionSettings["layers"]): boolean {
-    return (
-      layers.czechHop ||
-      layers.czechGrids ||
-      layers.czechProtected ||
-      layers.czechMilitary
-    );
-  }
-
   private async fetchMissingTiles(
     tileIds: string[],
-    needSwiss: boolean,
-    needCzech: boolean,
-    needFrance: boolean,
-    settings: ExtensionSettings
+    active: ActiveSource[]
   ): Promise<void> {
     const gen = this.generation;
-    const czechSources = needCzech ? enabledCzechSources(settings.layers) : [];
 
-    // full-country Swiss offline download, if the user fetched it
-    let idbTiles: Record<string, Feature<Geometry>[]> = {};
-    if (needSwiss) {
-      idbTiles = await fetchSwissTilesFromIdb(tileIds);
+    // bulk local tiles (e.g. the Swiss offline download), once per batch
+    const localByRegion = new Map<Region, Record<string, Feature<Geometry>[]>>();
+    for (const { country } of active) {
+      if (country.getLocalTiles && !localByRegion.has(country.region)) {
+        localByRegion.set(country.region, await country.getLocalTiles(tileIds));
+      }
     }
 
     // one round trip to the persistent per-source cache for everything missing
     const wantKeys: string[] = [];
     for (const id of tileIds) {
-      if (needSwiss && !idbTiles[id]?.length) wantKeys.push(swissKey(id));
-      if (needFrance) wantKeys.push(franceKey(id));
-      for (const s of czechSources) wantKeys.push(czechKey(s, id));
+      for (const { country, sub } of active) {
+        if (sub.persist === false) continue;
+        if (localByRegion.get(country.region)?.[id]?.length) continue;
+        wantKeys.push(persistKey(sub, id));
+      }
     }
     const stored = await zoneCacheGet(wantKeys);
 
     const toPersist: Record<string, Feature<Geometry>[]> = {};
-    const layersFp = czechSources.map((s) => `${s.service}/${s.layerId}`).join(",");
+    const fingerprint = active.map((a) => a.sub.cacheKeyPrefix).join(",");
 
     await Promise.all(
       tileIds.map((id) => {
         if (this.memoryCache.get(id)) return Promise.resolve();
-        const inflightKey = `${id}|${needSwiss}|${needFrance}|${layersFp}`;
+        const inflightKey = `${id}|${fingerprint}`;
         const existing = this.inflight.get(inflightKey);
         if (existing) return existing;
 
         const job = this.fetchTile(
           id,
-          needSwiss,
-          needFrance,
-          czechSources,
-          idbTiles,
+          active,
+          localByRegion,
           stored,
           toPersist,
           gen
@@ -203,10 +182,8 @@ export class VectorLoader {
 
   private async fetchTile(
     tileId: string,
-    needSwiss: boolean,
-    needFrance: boolean,
-    czechSources: CzechBboxSource[],
-    idbTiles: Record<string, Feature<Geometry>[]>,
+    active: ActiveSource[],
+    localByRegion: Map<Region, Record<string, Feature<Geometry>[]>>,
     stored: Record<string, Feature<Geometry>[]>,
     toPersist: Record<string, Feature<Geometry>[]>,
     gen: number
@@ -215,59 +192,28 @@ export class VectorLoader {
     const parts: Feature<Geometry>[] = [];
     let hadError = false;
 
-    const swissTask = async () => {
-      if (!needSwiss) return;
-      const offline = idbTiles[tileId];
-      if (offline?.length) {
-        parts.push(...offline);
-        return;
-      }
-      const cached = stored[swissKey(tileId)];
-      if (cached) {
-        parts.push(...cached);
-        return;
-      }
-      try {
-        const online = await fetchSwissFeaturesForBounds(bounds);
-        parts.push(...online);
-        toPersist[swissKey(tileId)] = online;
-      } catch {
-        hadError = true;
-      }
-    };
-
-    const franceTask = async () => {
-      if (!needFrance) return;
-      const cached = stored[franceKey(tileId)];
-      if (cached) {
-        parts.push(...cached);
-        return;
-      }
-      try {
-        const online = await fetchFranceFeaturesForBounds(bounds);
-        parts.push(...online);
-        toPersist[franceKey(tileId)] = online;
-      } catch {
-        hadError = true;
-      }
-    };
-
-    const czechTasks = czechSources.map((source) => async () => {
-      const cached = stored[czechKey(source, tileId)];
-      if (cached) {
-        parts.push(...cached);
-        return;
-      }
-      try {
-        const features = await fetchCzechSourceFeatures(source, bounds);
-        parts.push(...features);
-        toPersist[czechKey(source, tileId)] = features;
-      } catch {
-        hadError = true;
-      }
-    });
-
-    await Promise.all([swissTask(), franceTask(), ...czechTasks.map((t) => t())]);
+    await Promise.all(
+      active.map(async ({ country, sub }) => {
+        const local = localByRegion.get(country.region)?.[tileId];
+        if (local?.length) {
+          parts.push(...local);
+          return;
+        }
+        const key = persistKey(sub, tileId);
+        const cached = sub.persist === false ? undefined : stored[key];
+        if (cached) {
+          parts.push(...cached);
+          return;
+        }
+        try {
+          const online = await sub.fetchForBounds(bounds);
+          parts.push(...online);
+          if (sub.persist !== false) toPersist[key] = online;
+        } catch {
+          hadError = true;
+        }
+      })
+    );
 
     if (gen !== this.generation) return; // settings changed mid-flight
 

@@ -1,5 +1,3 @@
-import type { CountryRegion, Region } from "../../types";
-
 export interface RegionBounds {
   west: number;
   south: number;
@@ -30,6 +28,36 @@ export const FRANCE_BOUNDS: RegionBounds = {
   north: 51.1,
 };
 
+// Germany wraps around Bohemia, so its rectangle necessarily covers western
+// Czechia (incl. Prague) — overlapping boxes just mean both countries fetch.
+export const GERMANY_BOUNDS: RegionBounds = {
+  west: 5.8,
+  south: 47.2,
+  east: 15.1,
+  north: 55.1,
+};
+
+export const AUSTRIA_BOUNDS: RegionBounds = {
+  west: 9.5,
+  south: 46.3,
+  east: 17.2,
+  north: 49.1,
+};
+
+export const POLAND_BOUNDS: RegionBounds = {
+  west: 14.1,
+  south: 49.0,
+  east: 24.2,
+  north: 55.0,
+};
+
+export const SLOVAKIA_BOUNDS: RegionBounds = {
+  west: 16.8,
+  south: 47.7,
+  east: 22.6,
+  north: 49.7,
+};
+
 export function isInsideBounds(
   lat: number,
   lng: number,
@@ -43,10 +71,5 @@ export function isInsideBounds(
   );
 }
 
-export function detectRegion(lat: number, lng: number): CountryRegion {
-  const regions: Region[] = [];
-  if (isInsideBounds(lat, lng, SWITZERLAND_BOUNDS)) regions.push("CH");
-  if (isInsideBounds(lat, lng, CZECH_BOUNDS)) regions.push("CZ");
-  if (isInsideBounds(lat, lng, FRANCE_BOUNDS)) regions.push("FR");
-  return regions;
-}
+// detectRegion lives in country-registry.ts — it iterates the registered
+// countries, so this module stays a plain geometry helper with no data deps.

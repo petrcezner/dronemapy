@@ -3,7 +3,8 @@ import type {
   MessageType,
   SwissFeatureCollection,
 } from "../../types";
-import { DEFAULT_SETTINGS } from "../../types";
+import { mergeStoredSettings } from "../../types";
+import { POLAND_AUP_URL, POLAND_STATIC_URL } from "../data/poland";
 import {
   CH_GEOJSON_URL,
   downloadSwissGeoJson,
@@ -19,7 +20,9 @@ import {
 
 async function getSettings(): Promise<ExtensionSettings> {
   const result = await chrome.storage.sync.get("settings");
-  return { ...DEFAULT_SETTINGS, ...(result.settings as Partial<ExtensionSettings>) };
+  // deep-merges `layers`, so countries added after the user stored their
+  // settings still default to enabled
+  return mergeStoredSettings(result.settings as Partial<ExtensionSettings>);
 }
 
 async function setSettings(partial: Partial<ExtensionSettings>): Promise<ExtensionSettings> {
@@ -89,6 +92,27 @@ chrome.runtime.onMessage.addListener(
             }
           }
           sendResponse(settings);
+          break;
+        }
+        // airspace.pansa.pl sends no CORS headers, so the content script
+        // cannot fetch it — the worker fetches under host_permissions instead
+        case "FETCH_POLAND_AIRSPACE": {
+          try {
+            const url =
+              message.feed === "aup" ? POLAND_AUP_URL : POLAND_STATIC_URL;
+            const res = await fetch(url);
+            if (!res.ok) {
+              sendResponse({ features: null });
+              break;
+            }
+            const data = await res.json();
+            // the feeds return a bare array of Features
+            sendResponse({
+              features: Array.isArray(data) ? data : data?.features ?? null,
+            });
+          } catch {
+            sendResponse({ features: null });
+          }
           break;
         }
         case "GET_SWISS_TILES": {

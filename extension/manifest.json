@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "DronMap – Drone Zones on Mapy.com",
-  "version": "1.1.0",
-  "description": "Overlay Swiss, Czech and French UAS drone restriction zones on mapy.com",
+  "version": "1.2.0",
+  "description": "Overlay Swiss, Czech, French, German, Austrian, Polish and Slovak UAS drone restriction zones on mapy.com",
   "permissions": ["storage", "alarms"],
   "host_permissions": [
     "https://mapy.com/*",
@@ -11,7 +11,11 @@
     "https://data.geo.admin.ch/*",
     "https://aimgis.rlp.cz/*",
     "https://aim.rlp.cz/*",
-    "https://data.geopf.fr/*"
+    "https://data.geopf.fr/*",
+    "https://uas-betrieb.de/*",
+    "https://utm.dronespace.at/*",
+    "https://airspace.pansa.pl/*",
+    "https://gis.lps.sk/*"
   ],
   "background": {
     "service_worker": "src/background/service-worker.ts",

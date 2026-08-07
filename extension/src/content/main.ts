@@ -1,5 +1,5 @@
 import type { CountryRegion, ExtensionSettings, MessageType } from "../../types";
-import { DEFAULT_SETTINGS } from "../../types";
+import { DEFAULT_SETTINGS, mergeStoredSettings } from "../../types";
 import type { MapViewport } from "../../types";
 import { sendRuntimeMessage } from "../shared/runtime-messaging";
 import { MapyMapAdapter } from "./map-adapter";
@@ -7,7 +7,7 @@ import { OverlayRenderer } from "./overlay-renderer";
 import { ClickHandler } from "./click-handler";
 import { MapPanel, saveSettings } from "./map-panel";
 import { AltitudeLegend } from "./altitude-legend";
-import { detectRegion } from "../data/regions";
+import { detectRegion } from "../data/country-registry";
 import { VectorLoader } from "../data/vector-loader";
 import {
   MAX_FETCH_RADIUS_KM,
@@ -71,7 +71,7 @@ class DronMapController {
     const response = await sendRuntimeMessage<Partial<ExtensionSettings>>({
       type: "GET_SETTINGS",
     });
-    return { ...DEFAULT_SETTINGS, ...response };
+    return mergeStoredSettings(response);
   }
 
   private setupMessageListener(): void {
@@ -340,7 +340,9 @@ class DronMapController {
     if (partial.layers) {
       this.settings.layers = { ...this.settings.layers, ...partial.layers };
     }
-    if (partial.layers?.switzerland === false) {
+    // a layer switched off leaves its features in already-merged tiles;
+    // drop the memory cache so the next draw refetches without them
+    if (partial.layers && Object.values(partial.layers).some((v) => v === false)) {
       this.vectorLoader.clearCache();
     }
     if (partial.clickPopups === false) {

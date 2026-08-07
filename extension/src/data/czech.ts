@@ -1,7 +1,9 @@
 import type { Feature, Geometry } from "geojson";
 import type { MapViewport, ZoneInfo } from "../../types";
 import type { ExtensionSettings } from "../../types";
+import type { CountrySource } from "./country-source";
 import { lngLatToMercator3857 } from "./projection";
+import { CZECH_BOUNDS } from "./regions";
 
 export interface CzechBboxSource {
   settingKey: keyof ExtensionSettings["layers"];
@@ -93,12 +95,6 @@ export interface CzechRestLayer {
 export const CZECH_REST_LAYERS: CzechRestLayer[] = CZECH_BBOX_SOURCES.map(
   ({ service, layerId, name }) => ({ service, layerId, name })
 );
-
-export function enabledCzechSources(
-  layers: ExtensionSettings["layers"]
-): CzechBboxSource[] {
-  return CZECH_BBOX_SOURCES.filter((s) => layers[s.settingKey] !== false);
-}
 
 export function buildCzechQueryUrl(
   source: CzechBboxSource,
@@ -206,3 +202,26 @@ export async function queryCzechZones(
 
   return results;
 }
+
+export const czechCountry: CountrySource = {
+  region: "CZ",
+  displayName: "Czech Republic",
+  bounds: CZECH_BOUNDS,
+  sources: CZECH_BBOX_SOURCES.map((source) => ({
+    // matches the legacy vector-loader key format byte for byte
+    cacheKeyPrefix: `cz/${source.service}/${source.layerId}`,
+    settingKey: source.settingKey,
+    fetchForBounds: (bounds: MapViewport["bounds"]) =>
+      fetchCzechSourceFeatures(source, bounds),
+  })),
+  layerToggles: [
+    { key: "czechHop", label: "CZ – Population density" },
+    { key: "czechGrids", label: "CZ – Airport grids" },
+    { key: "czechProtected", label: "CZ – Protected areas" },
+    { key: "czechMilitary", label: "CZ – Military" },
+  ],
+  getStyle: getCzechStyle,
+  queryPoint: queryCzechZones,
+  officialMap: { label: "DroneMap", url: "https://dronemap.gov.cz/index.php?dron" },
+  attribution: { label: "ŘLP", url: "https://dronemap.gov.cz" },
+};

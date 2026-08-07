@@ -2,8 +2,7 @@ import type { Feature, Geometry, Position } from "geojson";
 import type { MapViewport } from "../../types";
 import { createProjector, type ViewportProjector } from "../data/projection";
 import { featureIntersectsBounds } from "../data/feature-bbox";
-import { getCzechStyle } from "../data/czech";
-import { getFranceStyle } from "../data/france";
+import { resolveFeatureStyle } from "../data/country-registry";
 
 const RESTRICTION_COLORS: Record<string, string> = {
   PROHIBITED: "rgba(220, 38, 38, 0.55)",
@@ -20,6 +19,11 @@ const DEBUG_LANDMARKS = [
   { name: "Prague Castle", lng: 14.4003, lat: 50.09 },
   { name: "Zurich HB", lng: 8.5402, lat: 47.3779 },
   { name: "Brno center", lng: 16.6068, lat: 49.1951 },
+  // Saxon Switzerland / CZ border — for measuring the reported overlay shift
+  { name: "Lilienstein summit", lng: 14.08616, lat: 50.93017 },
+  { name: "Gamrig summit", lng: 14.09706, lat: 50.95834 },
+  { name: "Hřensko", lng: 14.2439, lat: 50.8743 },
+  { name: "Königstein fortress", lng: 14.0567, lat: 50.9189 },
 ];
 
 function debugEnabled(): boolean {
@@ -45,12 +49,17 @@ export function getRestrictionColor(restriction?: string): string {
   return RESTRICTION_COLORS.default;
 }
 
-function flattenCoordinates(geometry: Geometry): Position[][] {
+/**
+ * Group rings per polygon: `[polygon][ring][vertex]`, ring 0 = outer, rest =
+ * holes. Each group must be filled as ONE even-odd path — filling rings
+ * independently paints holes solid (park enclaves rendered green).
+ */
+export function polygonRingGroups(geometry: Geometry): Position[][][] {
   switch (geometry.type) {
     case "Polygon":
-      return geometry.coordinates;
+      return [geometry.coordinates];
     case "MultiPolygon":
-      return geometry.coordinates.flat();
+      return geometry.coordinates;
     default:
       return [];
   }
@@ -157,25 +166,20 @@ export class OverlayRenderer {
 
     for (const feature of toDraw) {
       const props = feature.properties ?? {};
-      const czechStyle = getCzechStyle(props);
-      const franceStyle = czechStyle ? null : getFranceStyle(props);
+      const style = resolveFeatureStyle(props);
 
       let stroke: string | null = null;
-      if (czechStyle) {
-        this.ctx.fillStyle = czechStyle.hatch
-          ? this.getHatchPattern(czechStyle.fill)
-          : czechStyle.fill;
-        stroke = czechStyle.outline ?? null;
-      } else if (franceStyle) {
-        this.ctx.fillStyle = franceStyle.fill;
-        stroke = franceStyle.outline ?? null;
+      if (style) {
+        this.ctx.fillStyle = style.hatch
+          ? this.getHatchPattern(style.fill)
+          : style.fill;
+        stroke = style.outline ?? null;
       } else {
         this.ctx.fillStyle = getRestrictionColor(readRestriction(props));
       }
 
-      const rings = flattenCoordinates(feature.geometry);
-      for (const ring of rings) {
-        this.drawRing(ring, project, stroke);
+      for (const polygon of polygonRingGroups(feature.geometry)) {
+        this.drawPolygon(polygon, project, stroke);
       }
     }
 
@@ -184,24 +188,31 @@ export class OverlayRenderer {
     this.lastDrawnViewport = viewport;
   }
 
-  private drawRing(
-    ring: Position[],
+  /** One path holding outer + hole rings, filled even-odd so holes cut out. */
+  private drawPolygon(
+    rings: Position[][],
     project: ViewportProjector,
     stroke: string | null = null
   ): void {
-    if (ring.length === 0) return;
     this.ctx.beginPath();
-    for (let i = 0; i < ring.length; i++) {
-      const [lng, lat] = ring[i];
-      const pixel = project.toPixel(lng, lat);
-      if (i === 0) {
-        this.ctx.moveTo(pixel.x, pixel.y);
-      } else {
-        this.ctx.lineTo(pixel.x, pixel.y);
+    let hasPoints = false;
+    for (const ring of rings) {
+      for (let i = 0; i < ring.length; i++) {
+        const [lng, lat] = ring[i];
+        const pixel = project.toPixel(lng, lat);
+        if (i === 0) {
+          this.ctx.moveTo(pixel.x, pixel.y);
+        } else {
+          this.ctx.lineTo(pixel.x, pixel.y);
+        }
+      }
+      if (ring.length > 0) {
+        this.ctx.closePath();
+        hasPoints = true;
       }
     }
-    this.ctx.closePath();
-    this.ctx.fill();
+    if (!hasPoints) return;
+    this.ctx.fill("evenodd");
     if (stroke) {
       this.ctx.strokeStyle = stroke;
       this.ctx.lineWidth = 1;

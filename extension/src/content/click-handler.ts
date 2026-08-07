@@ -1,11 +1,15 @@
 import type { MapViewport, ZoneInfo } from "../../types";
-import { identifySwissZone } from "../data/switzerland";
-import { queryCzechZones } from "../data/czech";
-import { queryFranceZones } from "../data/france";
-import { detectRegion } from "../data/regions";
+import { COUNTRY_SOURCES, detectRegion } from "../data/country-registry";
 import { pixelToLngLat } from "../data/projection";
 
 const CLICK_MAX_MOVE_PX = 6;
+
+/** "A, B, or C" from the registry's display names. */
+function listCountryNames(): string {
+  const names = COUNTRY_SOURCES.map((c) => c.displayName);
+  if (names.length <= 1) return names[0] ?? "";
+  return `${names.slice(0, -1).join(", ")}, or ${names[names.length - 1]}`;
+}
 
 export class ClickHandler {
   private panel: HTMLDivElement;
@@ -102,19 +106,11 @@ export class ClickHandler {
 
   private async fetchZones(lng: number, lat: number): Promise<ZoneInfo[]> {
     const region = detectRegion(lat, lng);
-    const promises: Promise<ZoneInfo[]>[] = [];
-
-    if (region.includes("CH")) {
-      promises.push(identifySwissZone(lng, lat));
-    }
-    if (region.includes("CZ")) {
-      promises.push(queryCzechZones(lng, lat));
-    }
-    if (region.includes("FR")) {
-      promises.push(queryFranceZones(lng, lat));
-    }
-
-    const results = await Promise.all(promises);
+    const results = await Promise.all(
+      COUNTRY_SOURCES.filter((c) => region.includes(c.region)).map((c) =>
+        c.queryPoint(lng, lat)
+      )
+    );
     const merged = results.flat();
 
     if (merged.length === 0) {
@@ -123,7 +119,7 @@ export class ClickHandler {
           name: "No restriction zone detected",
           restriction:
             region.length === 0
-              ? "Move map to Switzerland, Czech Republic, or France"
+              ? `Move map to ${listCountryNames()}`
               : "No zone at this point – always verify on official maps",
           source: "DronMap extension",
         },

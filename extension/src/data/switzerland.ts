@@ -1,5 +1,8 @@
 import type { Feature, Geometry } from "geojson";
 import type { MapViewport, SwissFeatureCollection, ZoneInfo } from "../../types";
+import type { CountrySource } from "./country-source";
+import { SWITZERLAND_BOUNDS } from "./regions";
+import { sendRuntimeMessage } from "../shared/runtime-messaging";
 
 const CH_GEOJSON_URL =
   "https://data.geo.admin.ch/ch.bazl.einschraenkungen-drohnen/einschraenkungen-drohnen/einschraenkungen-drohnen_4326.geojson";
@@ -146,3 +149,36 @@ export function extractSwissFeatures(
 ): Feature<Geometry>[] {
   return collection.features ?? [];
 }
+
+/** Bulk tiles from the optional full-country offline download (service worker IndexedDB). */
+export async function fetchSwissTilesFromIdb(
+  tileIds: string[]
+): Promise<Record<string, Feature<Geometry>[]>> {
+  const response = await sendRuntimeMessage<{
+    tiles?: Record<string, Feature<Geometry>[]>;
+  }>({ type: "GET_SWISS_TILES", tileIds });
+  return response?.tiles ?? {};
+}
+
+export const swissCountry: CountrySource = {
+  region: "CH",
+  displayName: "Switzerland",
+  bounds: SWITZERLAND_BOUNDS,
+  sources: [
+    {
+      cacheKeyPrefix: "ch/identify",
+      settingKey: "switzerland",
+      fetchForBounds: fetchSwissFeaturesForBounds,
+    },
+  ],
+  layerToggles: [{ key: "switzerland", label: "Switzerland (BAZL)" }],
+  // no getStyle: Swiss features carry ED-269 restriction values that the
+  // generic restriction-color fallback maps directly
+  queryPoint: identifySwissZone,
+  officialMap: {
+    label: "geo.admin.ch",
+    url: "https://map.geo.admin.ch/#/map?lang=en&layers=ch.bazl.einschraenkungen-drohnen",
+  },
+  attribution: { label: "BAZL", url: "https://map.geo.admin.ch" },
+  getLocalTiles: fetchSwissTilesFromIdb,
+};

@@ -18,6 +18,14 @@ describe("parseTileUrl", () => {
     ).toEqual({ z: 14, x: 8800, y: 5750 });
   });
 
+  it("parses the tilecache.mapy.com scheme the CDN moved to in 2026", () => {
+    // regression: this URL shape not matching silently killed tile
+    // calibration and uniformly shifted the whole overlay
+    expect(
+      parseTileUrl("https://tilecache.mapy.com/base-en/14-8833-5488")
+    ).toEqual({ z: 14, x: 8833, y: 5488 });
+  });
+
   it("parses generic slippy z/x/y URLs", () => {
     expect(parseTileUrl("https://tiles.example.com/14/8800/5750.png")).toEqual({
       z: 14,

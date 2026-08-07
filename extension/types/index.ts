@@ -1,6 +1,6 @@
 import type { Feature, FeatureCollection, Geometry } from "geojson";
 
-export type Region = "CH" | "CZ" | "FR";
+export type Region = "CH" | "CZ" | "FR" | "DE" | "AT" | "PL" | "SK";
 /** Every region whose bounding box contains the point — boxes can overlap (e.g. CH/FR border). */
 export type CountryRegion = Region[];
 
@@ -31,6 +31,12 @@ export interface ExtensionSettings {
     czechProtected: boolean;
     czechMilitary: boolean;
     france: boolean;
+    germanyAirspace: boolean;
+    germanyMilitary: boolean;
+    germanyNature: boolean;
+    austria: boolean;
+    poland: boolean;
+    slovakia: boolean;
   };
 }
 
@@ -47,8 +53,30 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
     czechProtected: true,
     czechMilitary: true,
     france: true,
+    germanyAirspace: true,
+    germanyMilitary: true,
+    germanyNature: true,
+    austria: true,
+    poland: true,
+    slovakia: true,
   },
 };
+
+/**
+ * Merge settings loaded from storage over the defaults. Must be used instead
+ * of a plain spread: stored settings predate newly added countries, and a
+ * shallow merge would let the old `layers` object shadow every new key with
+ * `undefined`, silently disabling new countries for existing users.
+ */
+export function mergeStoredSettings(
+  stored: Partial<ExtensionSettings> | null | undefined
+): ExtensionSettings {
+  return {
+    ...DEFAULT_SETTINGS,
+    ...stored,
+    layers: { ...DEFAULT_SETTINGS.layers, ...stored?.layers },
+  };
+}
 
 export interface ZoneInfo {
   name: string;
@@ -83,6 +111,7 @@ export type MessageType =
   | { type: "GET_SETTINGS" }
   | { type: "SET_SETTINGS"; settings: Partial<ExtensionSettings> }
   | { type: "GET_SWISS_TILES"; tileIds: string[] }
+  | { type: "FETCH_POLAND_AIRSPACE"; feed: "static" | "aup" }
   | { type: "SWISS_DATA_STATUS" }
   | { type: "DOWNLOAD_SWISS_DATA" }
   | { type: "SETTINGS_UPDATED"; settings: ExtensionSettings }

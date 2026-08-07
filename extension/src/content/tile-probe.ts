@@ -30,8 +30,9 @@ export interface TileCalibration {
 const TILE_URL_PATTERNS = [
   // api.mapy.com/v1/maptiles/<set>/<tileSize>/<z>/<x>/<y>
   /maptiles\/[^/]+\/\d+(?:@2x)?\/(\d{1,2})\/(\d+)\/(\d+)/,
-  // mapserver.mapy.cz/<set>/<z>-<x>-<y> (legacy Seznam scheme)
-  /mapy\.cz\/[^/]+\/(?:retina\/)?(\d{1,2})-(\d+)-(\d+)/,
+  // mapserver.mapy.cz | tilecache.mapy.com — <set>/<z>-<x>-<y> (Seznam scheme;
+  // the tile CDN moved from *.mapy.cz to *.mapy.com in 2026, keep matching both)
+  /mapy\.(?:cz|com)\/[^/]+\/(?:retina\/)?(\d{1,2})-(\d+)-(\d+)/,
   // generic slippy .../z/x/y.png
   /\/(\d{1,2})\/(\d+)\/(\d+)(?:@2x)?\.(?:png|jpe?g|webp)/,
 ];

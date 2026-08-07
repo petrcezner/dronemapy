@@ -1,6 +1,6 @@
 # Privacy Policy – DronMap Chrome Extension
 
-**Last updated:** July 2026
+**Last updated:** August 2026
 
 ## Summary
 
@@ -9,12 +9,16 @@ DronMap does **not** collect, store, or transmit any personal data. All processi
 ## What the extension does
 
 - Injects an overlay on **mapy.com** to display public drone restriction zone data
-- Downloads public aviation datasets from official government servers:
+- Downloads public aviation datasets from official aviation-authority servers:
   - `geo.admin.ch` / `data.geo.admin.ch` (Switzerland)
   - `aimgis.rlp.cz` (Czech Republic)
   - `data.geopf.fr` (France)
+  - `uas-betrieb.de` (Germany — DIPUL/DFS)
+  - `utm.dronespace.at` (Austria — Austro Control)
+  - `airspace.pansa.pl` (Poland — PANSA)
+  - `gis.lps.sk` (Slovakia — LPS SR)
 - Stores your preferences (layer toggles, opacity) in `chrome.storage.sync`
-- Caches Swiss zone GeoJSON (~13 MB) in IndexedDB on your device
+- Caches Swiss zone GeoJSON (~13 MB) and per-tile zone data in IndexedDB on your device
 
 ## What we do NOT collect
 
@@ -33,6 +37,10 @@ DronMap does **not** collect, store, or transmit any personal data. All processi
 | `geo.admin.ch` / `data.geo.admin.ch` | Fetch Swiss drone zone data |
 | `aimgis.rlp.cz` / `aim.rlp.cz` | Fetch Czech restriction layers |
 | `data.geopf.fr` | Fetch French drone restriction layers |
+| `uas-betrieb.de` | Fetch German DIPUL geo zone layers |
+| `utm.dronespace.at` | Fetch Austrian geo zones |
+| `airspace.pansa.pl` | Fetch Polish airspace + daily reservations |
+| `gis.lps.sk` | Fetch Slovak airspace layers |
 
 ## Contact
 

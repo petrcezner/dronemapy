@@ -1,4 +1,5 @@
 import type { CountryRegion, ExtensionSettings, MessageType } from "../../types";
+import { COUNTRY_BY_REGION, COUNTRY_SOURCES } from "../data/country-registry";
 import { sendRuntimeMessage } from "../shared/runtime-messaging";
 
 export interface MapPanelCallbacks {
@@ -6,15 +7,24 @@ export interface MapPanelCallbacks {
   onDownloadSwiss: () => Promise<void>;
 }
 
-const REGION_NAMES: Record<"CH" | "CZ" | "FR", string> = {
-  CH: "Switzerland",
-  CZ: "Czech Republic",
-  FR: "France",
-};
-
 function regionLabel(region: CountryRegion): string {
   if (region.length === 0) return "Outside zones";
-  return region.map((r) => REGION_NAMES[r]).join(" & ");
+  return region.map((r) => COUNTRY_BY_REGION[r].displayName).join(" & ");
+}
+
+// registry-driven blocks of the panel markup (labels/URLs are our constants)
+function officialLinksHtml(): string {
+  return COUNTRY_SOURCES.map(
+    (c) =>
+      `<a href="${c.officialMap.url}" target="_blank" rel="noopener">${c.officialMap.label}</a>`
+  ).join("\n          ");
+}
+
+function attributionHtml(): string {
+  return COUNTRY_SOURCES.map(
+    (c) =>
+      `<a href="${c.attribution.url}" target="_blank" rel="noopener">${c.attribution.label}</a>`
+  ).join(" / ");
 }
 
 export class MapPanel {
@@ -50,12 +60,10 @@ export class MapPanel {
           <button type="button" id="dronmap-download-swiss">Download for offline (~13 MB)</button>
         </div>
         <div class="dronmap-panel-links">
-          <a href="https://map.geo.admin.ch/#/map?lang=en&layers=ch.bazl.einschraenkungen-drohnen" target="_blank" rel="noopener">geo.admin.ch</a>
-          <a href="https://dronemap.gov.cz/index.php?dron" target="_blank" rel="noopener">DroneMap</a>
-          <a href="https://www.geoportail.gouv.fr/donnees/restrictions-uas-categorie-ouverte-et-aeromodelisme" target="_blank" rel="noopener">Géoportail</a>
+          ${officialLinksHtml()}
         </div>
-        <p class="dronmap-panel-disclaimer">Informational only. Verify on official maps before flying.</p>
-        <p class="dronmap-panel-attribution">Data: <a href="https://map.geo.admin.ch" target="_blank" rel="noopener">BAZL</a> / <a href="https://dronemap.gov.cz" target="_blank" rel="noopener">ŘLP</a> / <a href="https://www.geoportail.gouv.fr" target="_blank" rel="noopener">DGAC</a></p>
+        <p class="dronmap-panel-disclaimer">Informational only. Verify on official maps before flying. PL/SK layers show classic airspace, not UAS geo zones.</p>
+        <p class="dronmap-panel-attribution">Data: ${attributionHtml()}</p>
       </div>
       <div class="dronmap-panel-bar">
         <span class="dronmap-panel-brand">DronMap</span>
@@ -91,14 +99,10 @@ export class MapPanel {
 
   private buildLayerInputs(): void {
     const container = this.root.querySelector("#dronmap-layers")!;
-    const layers: { id: keyof ExtensionSettings["layers"]; label: string }[] = [
-      { id: "switzerland", label: "Switzerland (BAZL)" },
-      { id: "czechHop", label: "CZ – Population density" },
-      { id: "czechGrids", label: "CZ – Airport grids" },
-      { id: "czechProtected", label: "CZ – Protected areas" },
-      { id: "czechMilitary", label: "CZ – Military" },
-      { id: "france", label: "France (DGAC)" },
-    ];
+    const layers: { id: keyof ExtensionSettings["layers"]; label: string }[] =
+      COUNTRY_SOURCES.flatMap((c) =>
+        c.layerToggles.map((t) => ({ id: t.key, label: t.label }))
+      );
 
     for (const layer of layers) {
       const label = document.createElement("label");
@@ -163,7 +167,9 @@ export class MapPanel {
     this.clickPopupsEl.checked = settings.clickPopups;
 
     for (const [key, input] of Object.entries(this.layerInputs)) {
-      input.checked = settings.layers[key as keyof typeof settings.layers];
+      // missing key = stored settings predate this layer → default enabled
+      input.checked =
+        settings.layers[key as keyof typeof settings.layers] !== false;
     }
 
     this.root.classList.toggle("dronmap-panel-hidden", !settings.panelVisible);
