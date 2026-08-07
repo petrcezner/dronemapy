@@ -88,6 +88,12 @@ npm run build
 npm test
 ```
 
+### Pre-commit hooks
+
+`npm install` sets up a git pre-commit hook (via [husky](https://typicode.github.io/husky/)) that runs
+ESLint on staged files (with autofix), `tsc --noEmit`, and the test suite. To skip it in an
+emergency, use `git commit --no-verify`.
+
 ## Usage on mapy.com
 
 1. Open [mapy.com](https://mapy.com) — a **DronMap** bottom toolbar appears on the map
