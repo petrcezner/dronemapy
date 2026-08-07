@@ -2,24 +2,70 @@
 
 ![CI](https://github.com/petrcezner/dronemapy/actions/workflows/ci.yml/badge.svg?branch=develop)
 
-Chrome extension (Manifest V3) that overlays **Swiss**, **Czech**, **French**, **German**, **Austrian**, **Polish**, **Slovak** and **Italian** drone restriction zones on [mapy.com](https://mapy.com).
+Chrome extension that overlays **drone restriction zones** directly on [mapy.com](https://mapy.com) — the map you already use for planning trips. Covers **Switzerland, Czech Republic, France, Germany, Austria, Poland, Slovakia and Italy**, loading official airspace data live for whatever part of the map you're looking at.
 
-## Features
+Plan your hike or ride on mapy.com and instantly see where your drone can and cannot fly — no switching between the national drone maps.
 
-- Auto-loads restriction data based on map viewport (CH / CZ / FR / DE / AT / PL / SK / IT)
-- **Crisp vector overlays** drawn on canvas (no WMS raster layers)
-- **Grid-chunked loading**: only nearby map tiles are fetched where the API allows it
-- **Switzerland**: BAZL zones from [geo.admin.ch](https://map.geo.admin.ch) — online REST per tile; optional offline download indexed into IndexedDB tiles
-- **Czech Republic**: ŘLP ArcGIS REST bbox queries from [aimgis.rlp.cz](https://aimgis.rlp.cz) + point query on click
-- **France**: DGAC/IGN WFS bbox queries from [data.geopf.fr](https://data.geopf.fr) + point query on click
-- **Germany**: DIPUL (DFS/BMDV) WFS bbox queries from [uas-betrieb.de](https://uas-betrieb.de/geoservices/dipul/wfs) — control zones, restriction areas, airports, military, nature reserves
-- **Austria**: Austro Control geo zones from [dronespace.at](https://utm.dronespace.at/avm/) — country-wide GeoJSON fetched once per session, clipped per tile
-- **Poland**: PANSA **classic airspace + daily AUP reservations** from [airspace.pansa.pl](https://airspace.pansa.pl) (see note below)
-- **Slovakia**: LPS SR **classic airspace** ArcGIS bbox queries from [gis.lps.sk](https://gis.lps.sk/vfrm) (see note below)
-- **Italy**: **classic airspace** from [openAIP](https://www.openaip.net) — **requires a free API key you paste into the panel** (see note below)
-- **In-map bottom toolbar** for all controls (no Chrome popup)
-- Click map (without dragging) for zone details
-- Optimized rendering: updates on pan/zoom settle, not during gesture
+*Independent project — not affiliated with Mapy.com (Seznam.cz) or any aviation authority.*
+
+## Screenshots
+
+Czech drone restriction grid over Prague, with the DronMap toolbar at the bottom:
+
+![Czech drone zones over Prague with the DronMap toolbar](docs/screenshots/hero-prague.jpg)
+
+Click any zone to see what applies there — restriction, altitude limit, and the authority behind it:
+
+![Zone details panel after clicking a restricted area near Prague](docs/screenshots/zone-details.jpg)
+
+Swiss BAZL zones around Zurich and the German control zone over Berlin:
+
+![Swiss BAZL drone zones around Zurich](docs/screenshots/zurich.jpg)
+
+![German DIPUL control zone over Berlin](docs/screenshots/berlin.jpg)
+
+Per-country layers, click pop-ups, units, and offline data live in the expandable panel:
+
+![Expanded Layers panel with per-country toggles](docs/screenshots/layers-panel.jpg)
+
+## Install
+
+Not yet on the Chrome Web Store — for now, install from source:
+
+```bash
+git clone https://github.com/petrcezner/dronemapy.git
+cd dronemapy
+npm install
+npm run build
+```
+
+Then load it in Chrome:
+
+1. Open `chrome://extensions`
+2. Enable **Developer mode**
+3. Click **Load unpacked**
+4. Select the `extension/dist` folder
+
+## Usage & controls
+
+1. Open [mapy.com](https://mapy.com) — a **DronMap** toolbar appears at the bottom of the map
+2. Use the **Overlay** toggle and opacity slider to blend zones with the map
+3. Click **Layers ▲** to expand per-country layer toggles, click pop-ups, units, and offline options
+4. Click the map (tap without dragging) to inspect zone details
+5. Click the extension icon in Chrome to show/hide the toolbar
+
+## Coverage
+
+| Country | Data | Source |
+| --- | --- | --- |
+| 🇨🇭 Switzerland | BAZL drone zones, optional offline mode | [geo.admin.ch](https://map.geo.admin.ch) |
+| 🇨🇿 Czech Republic | ŘLP drone zones + click details | [aimgis.rlp.cz](https://aimgis.rlp.cz) |
+| 🇫🇷 France | DGAC/IGN UAS restrictions + click details | [data.geopf.fr](https://data.geopf.fr) |
+| 🇩🇪 Germany | DIPUL — control zones, restriction areas, airports, military, nature reserves | [uas-betrieb.de](https://uas-betrieb.de/geoservices/dipul/wfs) |
+| 🇦🇹 Austria | Austro Control geo zones | [dronespace.at](https://utm.dronespace.at/avm/) |
+| 🇵🇱 Poland | Classic airspace + daily AUP reservations (see note) | [airspace.pansa.pl](https://airspace.pansa.pl) |
+| 🇸🇰 Slovakia | Classic airspace (see note) | [gis.lps.sk](https://gis.lps.sk/vfrm) |
+| 🇮🇹 Italy | Classic airspace via openAIP — free API key required (see note) | [openAIP](https://www.openaip.net) |
 
 ### Note on Italy coverage
 
@@ -42,6 +88,14 @@ PL and SK layers show **classic airspace (P/R/CTR/TRA…)**, not the legal UAS g
 - Poland's DRA geozones live behind `api.dronemap.pansa.pl`, which requires an API key issued by PANSA (not self-service). Future work: an options field for a user-supplied key.
 - Slovakia's geozones are published by Dopravný úrad (NSAT) only as a KML inside a ZIP at a changing URL. Future work: fetch + convert that dataset.
 
+## How it works
+
+- Zones load for **your current viewport** only: the map is split into ~0.25° grid tiles with a one-tile padding ring, and only nearby tiles are fetched where the API allows it
+- Overlays are **crisp vectors drawn on canvas** — no blurry WMS raster layers
+- Rendering waits for the pan/zoom gesture to settle (~350 ms), so the map stays smooth while you move around
+- Switzerland works online out of the box; you can also **download the full Swiss dataset (~13 MB)** from the panel into IndexedDB for instant offline repeat visits
+- Austria's country-wide GeoJSON is fetched once per session and clipped per tile; Poland's airspace feed loads once and includes the day's AUP reservations
+
 ## Disclaimer
 
 This extension is an **informational aid only**. Always verify restrictions on official maps before flying:
@@ -54,6 +108,19 @@ This extension is an **informational aid only**. Always verify restrictions on o
 - Poland: [dronemap.pansa.pl](https://dronemap.pansa.pl)
 - Slovakia: [NSAT geo zones](https://letectvo.nsat.sk/bezpilotne-letectvo/zemepisne-oblasti-uas/) + [VFR Manual](https://gis.lps.sk/vfrm)
 - Italy: [d-flight](https://www.d-flight.it/web-app/)
+
+## Data sources & attribution
+
+| Region | Source | License / attribution |
+| --- | --- | --- |
+| Switzerland | [data.geo.admin.ch](https://data.geo.admin.ch/ch.bazl.einschraenkungen-drohnen/) | Opendata BY – BAZL |
+| Czech Republic | [aimgis.rlp.cz](https://aimgis.rlp.cz) REST | ŘLP ČR / AIM |
+| France | [data.geopf.fr](https://data.geopf.fr) WFS | Licence Ouverte 2.0 – DGAC |
+| Germany | [uas-betrieb.de](https://uas-betrieb.de/geoservices/dipul/wfs) WFS | CC BY-ND 4.0 – "dipul, CC-BY-ND 4.0" |
+| Austria | [utm.dronespace.at](https://utm.dronespace.at/avm/) GeoJSON | © Austro Control GmbH (dronespace.at) |
+| Poland | [airspace.pansa.pl](https://airspace.pansa.pl) JSON | PAŻP / PANSA — informational, verify NOTAM/AUP |
+| Slovakia | [gis.lps.sk](https://gis.lps.sk/vfrm) ArcGIS | "VFR Manual, LPS SR š. p." – [gis.lps.sk/vfrm](https://gis.lps.sk/vfrm) |
+| Italy | [openAIP](https://www.openaip.net) API (user's key) | openAIP contributors — airspace, not UAS geo zones |
 
 ## Development
 
@@ -69,12 +136,7 @@ npm install
 npm run dev
 ```
 
-Load the extension in Chrome:
-
-1. Open `chrome://extensions`
-2. Enable **Developer mode**
-3. Click **Load unpacked**
-4. Select `extension/dist`
+Then load the unpacked extension from `extension/dist` as described in [Install](#install).
 
 ### Build for production
 
@@ -94,16 +156,19 @@ npm test
 ESLint on staged files (with autofix), `tsc --noEmit`, and the test suite. To skip it in an
 emergency, use `git commit --no-verify`.
 
-## Usage on mapy.com
+### Project structure
 
-1. Open [mapy.com](https://mapy.com) — a **DronMap** bottom toolbar appears on the map
-2. Use **Overlay** toggle, opacity slider, and **Layers ▲** to expand layer options
-3. Click the extension icon in Chrome to show/hide the toolbar
-4. Click the map (tap without dragging) to inspect zone details
+```text
+extension/
+  manifest.json
+  src/
+    background/     # Service worker (tile index, settings, icon click)
+    content/        # Map adapter, overlay, map panel, click handler
+    data/           # Grid tiles, vector loader, projection, regions
+    styles/         # Overlay + panel CSS
+```
 
-Zones load for **your current viewport** only, split into ~0.25° grid tiles with a one-tile padding ring. Switzerland can work online immediately; download optional offline tiles from the panel for faster repeat visits without network.
-
-## Manual QA checklist
+### Manual QA checklist
 
 - [ ] Open mapy.com with extension loaded — bottom toolbar visible, no console errors
 - [ ] Pan/zoom rapidly — map stays smooth; sharp vector zones update ~350ms after stopping
@@ -118,31 +183,6 @@ Zones load for **your current viewport** only, split into ~0.25° grid tiles wit
 - [ ] Bratislava (`?x=17.11&y=48.15&z=12`) — SK + AT zones render together (border overlap)
 - [ ] Click a restricted area — info panel shows zone details
 - [ ] Toggle each layer off/on — its zones disappear/reappear
-
-## Project structure
-
-```
-extension/
-  manifest.json
-  src/
-    background/     # Service worker (tile index, settings, icon click)
-    content/        # Map adapter, overlay, map panel, click handler
-    data/           # Grid tiles, vector loader, projection, regions
-    styles/         # Overlay + panel CSS
-```
-
-## Data sources & attribution
-
-| Region | Source | License / attribution |
-|--------|--------|-----------------------|
-| Switzerland | [data.geo.admin.ch](https://data.geo.admin.ch/ch.bazl.einschraenkungen-drohnen/) | Opendata BY – BAZL |
-| Czech Republic | [aimgis.rlp.cz](https://aimgis.rlp.cz) REST | ŘLP ČR / AIM |
-| France | [data.geopf.fr](https://data.geopf.fr) WFS | Licence Ouverte 2.0 – DGAC |
-| Germany | [uas-betrieb.de](https://uas-betrieb.de/geoservices/dipul/wfs) WFS | CC BY-ND 4.0 – "dipul, CC-BY-ND 4.0" |
-| Austria | [utm.dronespace.at](https://utm.dronespace.at/avm/) GeoJSON | © Austro Control GmbH (dronespace.at) |
-| Poland | [airspace.pansa.pl](https://airspace.pansa.pl) JSON | PAŻP / PANSA — informational, verify NOTAM/AUP |
-| Slovakia | [gis.lps.sk](https://gis.lps.sk/vfrm) ArcGIS | "VFR Manual, LPS SR š. p." – [gis.lps.sk/vfrm](https://gis.lps.sk/vfrm) |
-| Italy | [openAIP](https://www.openaip.net) API (user's key) | openAIP contributors — airspace, not UAS geo zones |
 
 ## Privacy
 
