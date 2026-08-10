@@ -1,4 +1,4 @@
-# DronMap – Drone Zones on Mapy.com
+# DroneMapy – Drone Zones on Mapy.com
 
 ![CI](https://github.com/petrcezner/dronemapy/actions/workflows/ci.yml/badge.svg?branch=develop)
 
@@ -10,9 +10,9 @@ Plan your hike or ride on mapy.com and instantly see where your drone can and ca
 
 ## Screenshots
 
-Czech drone restriction grid over Prague, with the DronMap toolbar at the bottom:
+Czech drone restriction grid over Prague, with the DroneMapy toolbar at the bottom:
 
-![Czech drone zones over Prague with the DronMap toolbar](docs/screenshots/hero-prague.jpg)
+![Czech drone zones over Prague with the DroneMapy toolbar](docs/screenshots/hero-prague.jpg)
 
 Click any zone to see what applies there — restriction, altitude limit, and the authority behind it:
 
@@ -48,7 +48,7 @@ Then load it in Chrome:
 
 ## Usage & controls
 
-1. Open [mapy.com](https://mapy.com) — a **DronMap** toolbar appears at the bottom of the map
+1. Open [mapy.com](https://mapy.com) — a **DroneMapy** toolbar appears at the bottom of the map
 2. Use the **Overlay** toggle and opacity slider to blend zones with the map
 3. Click **Layers ▲** to expand per-country layer toggles, click pop-ups, units, and offline options
 4. Click the map (tap without dragging) to inspect zone details
