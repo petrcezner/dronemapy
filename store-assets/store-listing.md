@@ -75,9 +75,9 @@ Everything below is ready to paste into the [Chrome Web Store Developer Dashboar
 
 Certify: "I do not sell or transfer user data to third parties…" — all three certifications apply truthfully.
 
-**Privacy policy URL:** `https://petrcezner.github.io/dronemapy/privacy`
+**Privacy policy URL:** `https://dronemapy.com/privacy/`
 
-⚠️ Requires enabling GitHub Pages once: repo **Settings → Pages → Deploy from a branch → branch `develop` (or `master` after merge), folder `/docs`**. The policy source is `docs/privacy.md` (mirrors `PRIVACY.md`).
+The site is live via GitHub Pages (custom domain `dronemapy.com`, source `develop` branch, folder `/docs`). The policy source is `docs/privacy/index.html` (mirrors `PRIVACY.md`).
 
 ## Distribution tab
 

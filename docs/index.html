@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DroneMapy – Drone Zones on Mapy.com</title>
+<meta name="description" content="Chrome extension that overlays official drone restriction zones for Switzerland, Czech Republic, France, Germany, Austria, Poland, Slovakia and Italy directly on mapy.com.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Crect width='128' height='128' rx='24' fill='%231f7a52'/%3E%3Ccircle cx='64' cy='60' r='38' fill='%23e5484d' fill-opacity='0.42'/%3E%3Ccircle cx='64' cy='60' r='38' fill='none' stroke='%23c62f35' stroke-width='6'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #f7f8f6;
+    --bg-alt: #ffffff;
+    --text: #1b2420;
+    --text-muted: #5b665f;
+    --border: #e1e5df;
+    --accent: #1f7a52;
+    --accent-strong: #17603f;
+    --accent-soft: #e6f2ec;
+    --danger: #c62f35;
+    --card-shadow: 0 1px 2px rgba(20, 30, 24, 0.06), 0 8px 24px rgba(20, 30, 24, 0.04);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12160f;
+      --bg-alt: #171d16;
+      --text: #eaf0e9;
+      --text-muted: #a3b0a0;
+      --border: #263028;
+      --accent: #3fbf85;
+      --accent-strong: #6fd6a3;
+      --accent-soft: #16332590;
+      --danger: #ef6a6f;
+      --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  a { color: var(--accent-strong); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+  header.site {
+    position: sticky; top: 0; z-index: 10;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+  }
+  header.site .bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 24px; max-width: 1080px; margin: 0 auto;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; color: var(--text); }
+  .brand svg { width: 30px; height: 30px; flex-shrink: 0; }
+  nav.primary { display: flex; gap: 22px; align-items: center; }
+  nav.primary a { color: var(--text-muted); font-size: 14px; font-weight: 500; }
+  nav.primary a:hover { color: var(--text); text-decoration: none; }
+  nav.primary a.gh { color: var(--text); }
+
+  main { display: block; }
+
+  .hero { padding: 72px 0 40px; text-align: center; }
+  .hero h1 { font-size: 40px; line-height: 1.15; margin: 0 0 16px; letter-spacing: -0.01em; }
+  .hero p.lede { font-size: 19px; color: var(--text-muted); max-width: 640px; margin: 0 auto 28px; }
+  .cta-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 48px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 22px; border-radius: 10px; font-weight: 600; font-size: 15px;
+    border: 1px solid transparent;
+  }
+  .btn.primary { background: var(--accent); color: #fff; }
+  .btn.primary:hover { background: var(--accent-strong); text-decoration: none; }
+  .btn.ghost { background: var(--bg-alt); color: var(--text); border-color: var(--border); }
+  .btn.ghost:hover { border-color: var(--accent); text-decoration: none; }
+  .btn.disabled { opacity: 0.6; cursor: default; }
+  .hero-shot {
+    max-width: 900px; margin: 0 auto; border-radius: 16px; overflow: hidden;
+    border: 1px solid var(--border); box-shadow: var(--card-shadow);
+  }
+  .hero-shot img { display: block; width: 100%; height: auto; }
+  .disclaimer-line { font-size: 13px; color: var(--text-muted); margin-top: 14px; }
+
+  section { padding: 56px 0; }
+  section.alt { background: var(--bg-alt); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  h2 { font-size: 28px; margin: 0 0 8px; letter-spacing: -0.01em; }
+  .section-lede { color: var(--text-muted); margin: 0 0 32px; max-width: 640px; }
+
+  .grid-features { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
+  .feature-card {
+    background: var(--bg-alt); border: 1px solid var(--border); border-radius: 14px; padding: 20px;
+  }
+  .feature-card .icon { font-size: 22px; margin-bottom: 10px; display: block; }
+  .feature-card h3 { margin: 0 0 6px; font-size: 16px; }
+  .feature-card p { margin: 0; color: var(--text-muted); font-size: 14px; }
+
+  table.coverage { width: 100%; border-collapse: collapse; font-size: 14px; background: var(--bg-alt); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+  table.coverage th, table.coverage td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+  table.coverage th { color: var(--text-muted); font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.03em; }
+  table.coverage tr:last-child td { border-bottom: none; }
+  .tag { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-strong); font-weight: 600; }
+  .tag.partial { background: color-mix(in srgb, var(--danger) 15%, transparent); color: var(--danger); }
+
+  .gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+  figure { margin: 0; }
+  figure img {
+    width: 100%; height: auto; display: block; border-radius: 12px;
+    border: 1px solid var(--border); box-shadow: var(--card-shadow);
+  }
+  figcaption { margin-top: 10px; font-size: 13px; color: var(--text-muted); }
+
+  .steps { display: grid; gap: 14px; max-width: 640px; }
+  .step { display: flex; gap: 14px; align-items: flex-start; }
+  .step .num {
+    flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%;
+    background: var(--accent-soft); color: var(--accent-strong); font-weight: 700; font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .step code, pre code { font-size: 13.5px; }
+  pre {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 16px; overflow-x: auto; margin: 6px 0 0;
+  }
+  .note {
+    margin-top: 28px; padding: 14px 16px; border-radius: 10px;
+    background: var(--accent-soft); color: var(--accent-strong); font-size: 14px;
+  }
+
+  footer.site { padding: 40px 0 60px; text-align: center; color: var(--text-muted); font-size: 13.5px; }
+  footer.site .links { margin-bottom: 10px; }
+  footer.site .links a { margin: 0 10px; color: var(--text-muted); }
+  footer.site .links a:hover { color: var(--text); }
+
+  @media (max-width: 640px) {
+    nav.primary { display: none; }
+    .hero { padding: 48px 0 32px; }
+    .hero h1 { font-size: 30px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="bar">
+    <a class="brand" href="#top">
+      <svg viewBox="0 0 128 128" aria-hidden="true">
+        <defs>
+          <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#2f9e6e"/>
+            <stop offset="1" stop-color="#1f7a52"/>
+          </linearGradient>
+        </defs>
+        <rect x="0" y="0" width="128" height="128" rx="24" fill="url(#bg)"/>
+        <path d="M -8 88 Q 40 72 66 92 T 140 84" fill="none" stroke="#ffffff" stroke-opacity="0.35" stroke-width="7" stroke-linecap="round"/>
+        <path d="M 30 136 Q 44 96 34 64 T 44 -8" fill="none" stroke="#ffffff" stroke-opacity="0.25" stroke-width="5" stroke-linecap="round"/>
+        <circle cx="64" cy="60" r="38" fill="#e5484d" fill-opacity="0.42"/>
+        <circle cx="64" cy="60" r="38" fill="none" stroke="#c62f35" stroke-width="6"/>
+        <g fill="#ffffff" stroke="#ffffff">
+          <path d="M 47 43 L 81 77 M 81 43 L 47 77" stroke-width="7" stroke-linecap="round" fill="none"/>
+        </g>
+      </svg>
+      DroneMapy
+    </a>
+    <nav class="primary">
+      <a href="#features">Features</a>
+      <a href="#coverage">Coverage</a>
+      <a href="#screenshots">Screenshots</a>
+      <a href="#install">Install</a>
+      <a class="gh" href="https://github.com/petrcezner/dronemapy">GitHub ↗</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap">
+      <h1>Drone restriction zones, right on the map you already use</h1>
+      <p class="lede">DroneMapy overlays official drone restriction zones for eight European countries directly on mapy.com — so you can check where you can fly while planning your route, no switching to a national drone map.</p>
+      <div class="cta-row">
+        <a class="btn primary" href="https://chromewebstore.google.com/detail/dronemapy-%E2%80%93-drone-zones-o/hdaedlckhmomfjflbialfmdcebmiaejl">Add to Chrome</a>
+        <a class="btn ghost" href="https://github.com/petrcezner/dronemapy">View on GitHub</a>
+      </div>
+      <div class="hero-shot">
+        <img src="screenshots/hero-prague.jpg" alt="Czech drone zones over Prague with the DroneMapy toolbar" width="1280" height="800" loading="eager">
+      </div>
+      <p class="disclaimer-line">Independent project — not affiliated with Mapy.com (Seznam.cz) or any aviation authority.</p>
+    </div>
+  </section>
+
+  <section id="features" class="alt">
+    <div class="wrap">
+      <h2>Features</h2>
+      <p class="section-lede">Built to stay out of your way while you plan a flight.</p>
+      <div class="grid-features">
+        <div class="feature-card">
+          <span class="icon">🗺️</span>
+          <h3>Crisp vector overlays</h3>
+          <p>Zones are drawn as vectors on canvas, tiled to your viewport — no blurry raster or WMS layers.</p>
+        </div>
+        <div class="feature-card">
+          <span class="icon">📍</span>
+          <h3>Click for details</h3>
+          <p>Click any point on the map to see the restriction, altitude limit, authority and contact for that zone.</p>
+        </div>
+        <div class="feature-card">
+          <span class="icon">🎛️</span>
+          <h3>Per-country control</h3>
+          <p>Toggle layers per country, adjust overlay opacity, switch between metric and imperial units.</p>
+        </div>
+        <div class="feature-card">
+          <span class="icon">🔌</span>
+          <h3>Straight from the source</h3>
+          <p>Data is fetched live from official aviation-authority servers — no middleman server in between.</p>
+        </div>
+        <div class="feature-card">
+          <span class="icon">🔒</span>
+          <h3>No account, no tracking</h3>
+          <p>Nothing to sign up for. No analytics, no data collection — see the <a href="privacy/">Privacy Policy</a>.</p>
+        </div>
+        <div class="feature-card">
+          <span class="icon">📴</span>
+          <h3>Offline mode (Switzerland)</h3>
+          <p>Download the full Swiss dataset (~13 MB) once for instant offline zone lookups on repeat visits.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="coverage">
+    <div class="wrap">
+      <h2>Coverage</h2>
+      <p class="section-lede">Eight countries, loaded live for whichever part of the map you're looking at.</p>
+      <table class="coverage">
+        <thead>
+          <tr><th>Country</th><th>Authority / source</th><th>Data</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>🇨🇭 Switzerland</td><td>BAZL — geo.admin.ch</td><td><span class="tag">Full geo zones</span> + offline mode</td></tr>
+          <tr><td>🇨🇿 Czech Republic</td><td>ŘLP — aimgis.rlp.cz</td><td><span class="tag">Full geo zones</span></td></tr>
+          <tr><td>🇫🇷 France</td><td>DGAC/IGN — data.geopf.fr</td><td><span class="tag">Full geo zones</span></td></tr>
+          <tr><td>🇩🇪 Germany</td><td>DIPUL/DFS — uas-betrieb.de</td><td><span class="tag">Full geo zones</span></td></tr>
+          <tr><td>🇦🇹 Austria</td><td>Austro Control — dronespace.at</td><td><span class="tag">Full geo zones</span></td></tr>
+          <tr><td>🇵🇱 Poland</td><td>PANSA — airspace.pansa.pl</td><td><span class="tag partial">Classic airspace only</span></td></tr>
+          <tr><td>🇸🇰 Slovakia</td><td>LPS SR — gis.lps.sk</td><td><span class="tag partial">Classic airspace only</span></td></tr>
+          <tr><td>🇮🇹 Italy</td><td>openAIP</td><td><span class="tag partial">Classic airspace</span> — needs your free API key</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="screenshots" class="alt">
+    <div class="wrap">
+      <h2>Screenshots</h2>
+      <p class="section-lede">See it running across a few cities.</p>
+      <div class="gallery">
+        <figure>
+          <img src="screenshots/zone-details.jpg" alt="Zone details panel after clicking a restricted area near Prague" loading="lazy">
+          <figcaption>Click any zone to see what applies there — restriction, altitude limit, and the authority behind it.</figcaption>
+        </figure>
+        <figure>
+          <img src="screenshots/zurich.jpg" alt="Swiss BAZL drone zones around Zurich" loading="lazy">
+          <figcaption>Swiss BAZL zones around Zurich.</figcaption>
+        </figure>
+        <figure>
+          <img src="screenshots/berlin.jpg" alt="German DIPUL control zone over Berlin" loading="lazy">
+          <figcaption>German DIPUL control zone over Berlin.</figcaption>
+        </figure>
+        <figure>
+          <img src="screenshots/layers-panel.jpg" alt="Expanded Layers panel with per-country toggles" loading="lazy">
+          <figcaption>Per-country layers, click pop-ups, units and offline data live in the expandable panel.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section id="install">
+    <div class="wrap">
+      <h2>Install</h2>
+      <p class="section-lede">Get it from the Chrome Web Store — one click, no build step:</p>
+      <div class="cta-row" style="justify-content: flex-start; margin-bottom: 32px;">
+        <a class="btn primary" href="https://chromewebstore.google.com/detail/dronemapy-%E2%80%93-drone-zones-o/hdaedlckhmomfjflbialfmdcebmiaejl">Add to Chrome</a>
+      </div>
+      <p class="section-lede">Prefer building from source instead?</p>
+      <div class="steps">
+        <div class="step">
+          <span class="num">1</span>
+          <div>
+            Clone and build the extension
+            <pre><code>git clone https://github.com/petrcezner/dronemapy.git
+cd dronemapy
+npm install
+npm run build</code></pre>
+          </div>
+        </div>
+        <div class="step">
+          <span class="num">2</span>
+          <div>Open <code>chrome://extensions</code> and enable <strong>Developer mode</strong></div>
+        </div>
+        <div class="step">
+          <span class="num">3</span>
+          <div>Click <strong>Load unpacked</strong> and select the <code>extension/dist</code> folder</div>
+        </div>
+        <div class="step">
+          <span class="num">4</span>
+          <div>Open <a href="https://mapy.com">mapy.com</a> — the DroneMapy toolbar appears at the bottom of the map</div>
+        </div>
+      </div>
+      <p class="note">This extension is an informational aid only. Always verify restrictions against official sources and current NOTAMs before flying.</p>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <div class="links">
+      <a href="https://github.com/petrcezner/dronemapy">GitHub</a>
+      <a href="privacy/">Privacy Policy</a>
+      <a href="https://github.com/petrcezner/dronemapy/blob/develop/LICENSE.md">Apache License 2.0</a>
+    </div>
+    <div>DroneMapy is an independent project, not affiliated with Seznam.cz / mapy.com or any aviation authority.</div>
+  </div>
+</footer>
+
+</body>
+</html>

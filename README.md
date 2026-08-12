@@ -2,6 +2,8 @@
 
 ![CI](https://github.com/petrcezner/dronemapy/actions/workflows/ci.yml/badge.svg?branch=develop)
 
+**[Get it on the Chrome Web Store](https://chromewebstore.google.com/detail/dronemapy-%E2%80%93-drone-zones-o/hdaedlckhmomfjflbialfmdcebmiaejl)** · [dronemapy.com](https://dronemapy.com)
+
 Chrome extension that overlays **drone restriction zones** directly on [mapy.com](https://mapy.com) — the map you already use for planning trips. Covers **Switzerland, Czech Republic, France, Germany, Austria, Poland, Slovakia and Italy**, loading official airspace data live for whatever part of the map you're looking at.
 
 Plan your hike or ride on mapy.com and instantly see where your drone can and cannot fly — no switching between the national drone maps.
@@ -30,7 +32,9 @@ Per-country layers, click pop-ups, units, and offline data live in the expandabl
 
 ## Install
 
-Chrome Web Store submission is prepared (see `store-assets/store-listing.md`) and pending review — until it's published, install from source:
+Get it from the **[Chrome Web Store](https://chromewebstore.google.com/detail/dronemapy-%E2%80%93-drone-zones-o/hdaedlckhmomfjflbialfmdcebmiaejl)**.
+
+Or install from source:
 
 ```bash
 git clone https://github.com/petrcezner/dronemapy.git

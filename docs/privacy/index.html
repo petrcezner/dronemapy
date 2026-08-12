@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy – DroneMapy</title>
+<meta name="description" content="Privacy policy for the DroneMapy Chrome extension.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Crect width='128' height='128' rx='24' fill='%231f7a52'/%3E%3Ccircle cx='64' cy='60' r='38' fill='%23e5484d' fill-opacity='0.42'/%3E%3Ccircle cx='64' cy='60' r='38' fill='none' stroke='%23c62f35' stroke-width='6'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #f7f8f6;
+    --bg-alt: #ffffff;
+    --text: #1b2420;
+    --text-muted: #5b665f;
+    --border: #e1e5df;
+    --accent: #1f7a52;
+    --accent-strong: #17603f;
+    --accent-soft: #e6f2ec;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12160f;
+      --bg-alt: #171d16;
+      --text: #eaf0e9;
+      --text-muted: #a3b0a0;
+      --border: #263028;
+      --accent: #3fbf85;
+      --accent-strong: #6fd6a3;
+      --accent-soft: #16332590;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  a { color: var(--accent-strong); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 0 24px; }
+
+  header.site {
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    border-bottom: 1px solid var(--border);
+  }
+  header.site .bar { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; max-width: 720px; margin: 0 auto; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; color: var(--text); }
+  .brand svg { width: 28px; height: 28px; flex-shrink: 0; }
+
+  main { padding: 48px 0 60px; }
+  h1 { font-size: 30px; margin: 0 0 4px; letter-spacing: -0.01em; }
+  .updated { color: var(--text-muted); font-size: 14px; margin: 0 0 32px; }
+  h2 { font-size: 20px; margin: 32px 0 10px; }
+  p, li { color: var(--text); }
+  ul { padding-left: 22px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14.5px; background: var(--bg-alt); border-radius: 10px; overflow: hidden; border: 1px solid var(--border); margin-top: 8px; }
+  th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--text-muted); font-weight: 600; font-size: 13px; }
+  tr:last-child td { border-bottom: none; }
+  code { background: var(--accent-soft); color: var(--accent-strong); padding: 1px 5px; border-radius: 5px; font-size: 0.9em; }
+  .summary { background: var(--bg-alt); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
+
+  footer.site { padding: 30px 0 50px; text-align: center; color: var(--text-muted); font-size: 13.5px; }
+  footer.site a { margin: 0 10px; color: var(--text-muted); }
+  footer.site a:hover { color: var(--text); }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="bar">
+    <a class="brand" href="../">
+      <svg viewBox="0 0 128 128" aria-hidden="true">
+        <defs>
+          <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#2f9e6e"/>
+            <stop offset="1" stop-color="#1f7a52"/>
+          </linearGradient>
+        </defs>
+        <rect x="0" y="0" width="128" height="128" rx="24" fill="url(#bg)"/>
+        <circle cx="64" cy="60" r="38" fill="#e5484d" fill-opacity="0.42"/>
+        <circle cx="64" cy="60" r="38" fill="none" stroke="#c62f35" stroke-width="6"/>
+      </svg>
+      DroneMapy
+    </a>
+    <a href="../">← Back home</a>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <h1>Privacy Policy – DroneMapy Chrome Extension</h1>
+    <p class="updated">Last updated: August 2026</p>
+
+    <div class="summary">
+      <strong>Summary:</strong> DroneMapy does not collect, store, or transmit any personal data. All processing happens locally in your browser.
+    </div>
+
+    <h2>What the extension does</h2>
+    <ul>
+      <li>Injects an overlay on <strong>mapy.com</strong> to display public drone restriction zone data</li>
+      <li>Downloads public aviation datasets from official aviation-authority servers:
+        <ul>
+          <li><code>geo.admin.ch</code> / <code>data.geo.admin.ch</code> (Switzerland)</li>
+          <li><code>aimgis.rlp.cz</code> (Czech Republic)</li>
+          <li><code>data.geopf.fr</code> (France)</li>
+          <li><code>uas-betrieb.de</code> (Germany — DIPUL/DFS)</li>
+          <li><code>utm.dronespace.at</code> (Austria — Austro Control)</li>
+          <li><code>airspace.pansa.pl</code> (Poland — PANSA)</li>
+          <li><code>gis.lps.sk</code> (Slovakia — LPS SR)</li>
+          <li><code>api.core.openaip.net</code> (Italy — openAIP), only if you save an openAIP API key</li>
+        </ul>
+      </li>
+      <li>Stores your preferences (layer toggles, opacity) in <code>chrome.storage.sync</code></li>
+      <li>Caches Swiss zone GeoJSON (~13 MB) and per-tile zone data in IndexedDB on your device</li>
+    </ul>
+
+    <h2>Italian data access (optional)</h2>
+    <p>Italian airspace requires an openAIP API key that you provide. It is stored in <code>chrome.storage.local</code> (local to this device, not synced) and is sent only to <code>api.core.openaip.net</code>. Remove it at any time with the panel's "Clear" button. The key is never sent to the extension author or any third party.</p>
+
+    <h2>What we do NOT collect</h2>
+    <ul>
+      <li>No account with the extension author; the optional openAIP key goes only to openAIP (see above)</li>
+      <li>No analytics or tracking</li>
+      <li>No location history sent to any server</li>
+      <li>No data sold to third parties</li>
+    </ul>
+
+    <h2>Permissions explained</h2>
+    <table>
+      <thead><tr><th>Permission</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td><code>storage</code></td><td>Save your settings and cache Swiss zone data locally</td></tr>
+        <tr><td><code>alarms</code></td><td>Weekly check for updated Swiss dataset</td></tr>
+        <tr><td><code>mapy.com</code></td><td>Inject overlay on the map page</td></tr>
+        <tr><td><code>geo.admin.ch</code> / <code>data.geo.admin.ch</code></td><td>Fetch Swiss drone zone data</td></tr>
+        <tr><td><code>aimgis.rlp.cz</code> / <code>aim.rlp.cz</code></td><td>Fetch Czech restriction layers</td></tr>
+        <tr><td><code>data.geopf.fr</code></td><td>Fetch French drone restriction layers</td></tr>
+        <tr><td><code>uas-betrieb.de</code></td><td>Fetch German DIPUL geo zone layers</td></tr>
+        <tr><td><code>utm.dronespace.at</code></td><td>Fetch Austrian geo zones</td></tr>
+        <tr><td><code>airspace.pansa.pl</code></td><td>Fetch Polish airspace + daily reservations</td></tr>
+        <tr><td><code>gis.lps.sk</code></td><td>Fetch Slovak airspace layers</td></tr>
+        <tr><td><code>api.core.openaip.net</code></td><td>Fetch Italian airspace with your openAIP API key</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Contact</h2>
+    <p>For questions about this extension, open an issue in the <a href="https://github.com/petrcezner/dronemapy">project repository</a>.</p>
+
+    <h2>Changes</h2>
+    <p>We may update this policy if the extension's behavior changes. Material changes will be reflected in the extension version notes.</p>
+  </div>
+</main>
+
+<footer class="site">
+  <a href="../">Home</a>
+  <a href="https://github.com/petrcezner/dronemapy">GitHub</a>
+</footer>
+
+</body>
+</html>
