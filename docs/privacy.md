@@ -1,3 +1,7 @@
+---
+title: Privacy Policy – DroneMapy
+---
+
 # Privacy Policy – DroneMapy Chrome Extension
 
 **Last updated:** August 2026

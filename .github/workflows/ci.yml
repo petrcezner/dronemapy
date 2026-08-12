@@ -32,8 +32,17 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Package for Chrome Web Store
+        run: node scripts/package.mjs
+
       - name: Upload extension build
         uses: actions/upload-artifact@v4
         with:
           name: extension-dist
           path: extension/dist
+
+      - name: Upload Web Store zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: webstore-zip
+          path: dronemapy-v*.zip

@@ -30,7 +30,7 @@ Per-country layers, click pop-ups, units, and offline data live in the expandabl
 
 ## Install
 
-Not yet on the Chrome Web Store — for now, install from source:
+Chrome Web Store submission is prepared (see `store-assets/store-listing.md`) and pending review — until it's published, install from source:
 
 ```bash
 git clone https://github.com/petrcezner/dronemapy.git

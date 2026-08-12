@@ -229,7 +229,7 @@ export class MapyMapAdapter {
     const calib = calibrate(samples);
     if (calib) {
       if (debugEnabled()) {
-        console.debug("[DronMap] viewport via tiles", {
+        console.debug("[DroneMapy] viewport via tiles", {
           zoom: calib.zoom,
           k: calib.k,
           sampleCount: calib.sampleCount,
@@ -249,7 +249,7 @@ export class MapyMapAdapter {
     // Fallback: reconstruct from the URL.
     const parsed = parseMapyUrl(window.location.href);
     if (debugEnabled()) {
-      console.debug("[DronMap] viewport via url-fallback", {
+      console.debug("[DroneMapy] viewport via url-fallback", {
         parsed,
         tileImgsFound: samples.length,
         rect: { left: rect.left, top: rect.top, width, height },

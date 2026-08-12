@@ -125,7 +125,7 @@ export class ClickHandler {
             region.length === 0
               ? `Move map to ${listCountryNames()}`
               : "No zone at this point – always verify on official maps",
-          source: "DronMap extension",
+          source: "DroneMapy extension",
         },
       ];
     }

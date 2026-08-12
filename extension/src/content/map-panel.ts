@@ -120,7 +120,7 @@ export class MapPanel {
         <p class="dronmap-panel-attribution">Data: ${attributionHtml()}</p>
       </div>
       <div class="dronmap-panel-bar">
-        <span class="dronmap-panel-brand">DronMap</span>
+        <span class="dronmap-panel-brand">DroneMapy</span>
         <label class="dronmap-panel-toggle">
           <input type="checkbox" id="dronmap-enabled" />
           <span>Overlay</span>

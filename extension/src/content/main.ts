@@ -23,7 +23,7 @@ const MAX_FOLLOW_SHIFT_RATIO = 0.4;
 /** Coalesce progressive tile redraws to at most one per interval. */
 const PROGRESSIVE_RENDER_MS = 150;
 
-class DronMapController {
+class DroneMapyController {
   private adapter = new MapyMapAdapter();
   private renderer: OverlayRenderer | null = null;
   private clickHandler: ClickHandler | null = null;
@@ -370,4 +370,4 @@ class DronMapController {
   }
 }
 
-void new DronMapController().init();
+void new DroneMapyController().init();

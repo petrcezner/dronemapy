@@ -146,14 +146,14 @@ export function italyUnavailableZone(
 ): ZoneInfo {
   const restriction =
     error === "unauthorized"
-      ? "openAIP rejected the API key – check it in the DronMap panel"
+      ? "openAIP rejected the API key – check it in the DroneMapy panel"
       : error === "failed"
         ? "openAIP could not be reached – try again shortly"
-        : "Add a free openAIP API key in the DronMap panel. Official Italian geo zones: d-flight.it";
+        : "Add a free openAIP API key in the DroneMapy panel. Official Italian geo zones: d-flight.it";
   return {
     name: "Italy – no zone data",
     restriction,
-    source: "DronMap extension",
+    source: "DroneMapy extension",
   };
 }
 

@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "DronMap – Drone Zones on Mapy.com",
+  "name": "DroneMapy – Drone Zones on Mapy.com",
   "version": "1.3.0",
   "description": "Overlay Swiss, Czech, French, German, Austrian, Polish, Slovak and Italian drone restriction zones on mapy.com",
   "permissions": ["storage", "alarms"],
@@ -28,7 +28,7 @@
       "48": "assets/icons/icon48.png",
       "128": "assets/icons/icon128.png"
     },
-    "default_title": "Toggle DronMap panel"
+    "default_title": "Toggle DroneMapy panel"
   },
   "content_scripts": [
     {

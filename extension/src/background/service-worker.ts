@@ -51,7 +51,7 @@ async function ensureSwissTilesIndexed(force = false): Promise<void> {
     const data = await downloadSwissGeoJson();
     await indexSwissGeoJson(data, stacUpdated);
   } catch (err) {
-    console.error("[DronMap] Swiss tile indexing failed:", err);
+    console.error("[DroneMapy] Swiss tile indexing failed:", err);
   }
 }
 
