@@ -5,6 +5,7 @@ import type {
 } from "../../types";
 import { mergeStoredSettings } from "../../types";
 import { POLAND_AUP_URL, POLAND_STATIC_URL } from "../data/poland";
+import { SRI_LANKA_KML_URL } from "../data/sri-lanka";
 import { fetchItalyZones, italyStatus, setOpenAipKey } from "./italy-sources";
 import {
   CH_GEOJSON_URL,
@@ -113,6 +114,17 @@ chrome.runtime.onMessage.addListener(
             });
           } catch {
             sendResponse({ features: null });
+          }
+          break;
+        }
+        // portal.caa.lk sends no CORS headers either; the KML text goes back
+        // unparsed because service workers have no DOMParser
+        case "FETCH_SRI_LANKA_ZONES": {
+          try {
+            const res = await fetch(SRI_LANKA_KML_URL);
+            sendResponse({ kml: res.ok ? await res.text() : null });
+          } catch {
+            sendResponse({ kml: null });
           }
           break;
         }

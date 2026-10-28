@@ -67,6 +67,14 @@ export const ITALY_BOUNDS: RegionBounds = {
   north: 47.1,
 };
 
+// Extent of the CAA KML is lng 79.71–81.87, lat 5.93–9.91; padded slightly.
+export const SRI_LANKA_BOUNDS: RegionBounds = {
+  west: 79.4,
+  south: 5.8,
+  east: 82.0,
+  north: 10.0,
+};
+
 export function isInsideBounds(
   lat: number,
   lng: number,

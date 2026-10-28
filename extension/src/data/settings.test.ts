@@ -33,5 +33,6 @@ describe("mergeStoredSettings", () => {
     expect(merged.layers.austria).toBe(true);
     expect(merged.layers.poland).toBe(true);
     expect(merged.layers.slovakia).toBe(true);
+    expect(merged.layers.sriLanka).toBe(true);
   });
 });

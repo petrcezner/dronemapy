@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>DroneMapy – Drone Zones on Mapy.com</title>
-<meta name="description" content="Chrome extension that overlays official drone restriction zones for Switzerland, Czech Republic, France, Germany, Austria, Poland, Slovakia and Italy directly on mapy.com.">
+<meta name="description" content="Chrome extension that overlays official drone restriction zones for Switzerland, Czech Republic, France, Germany, Austria, Poland, Slovakia, Italy and Sri Lanka directly on mapy.com.">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Crect width='128' height='128' rx='24' fill='%231f7a52'/%3E%3Ccircle cx='64' cy='60' r='38' fill='%23e5484d' fill-opacity='0.42'/%3E%3Ccircle cx='64' cy='60' r='38' fill='none' stroke='%23c62f35' stroke-width='6'/%3E%3C/svg%3E">
 <style>
   :root {
@@ -247,6 +247,7 @@
           <tr><td>🇵🇱 Poland</td><td>PANSA — airspace.pansa.pl</td><td><span class="tag partial">Classic airspace only</span></td></tr>
           <tr><td>🇸🇰 Slovakia</td><td>LPS SR — gis.lps.sk</td><td><span class="tag partial">Classic airspace only</span></td></tr>
           <tr><td>🇮🇹 Italy</td><td>openAIP</td><td><span class="tag partial">Classic airspace</span> — needs your free API key</td></tr>
+          <tr><td>🇱🇰 Sri Lanka</td><td>CAA Sri Lanka — portal.caa.lk</td><td><span class="tag">Full geo zones</span></td></tr>
         </tbody>
       </table>
     </div>
@@ -268,6 +269,10 @@
         <figure>
           <img src="screenshots/berlin.jpg" alt="German DIPUL control zone over Berlin" loading="lazy">
           <figcaption>German DIPUL control zone over Berlin.</figcaption>
+        </figure>
+        <figure>
+          <img src="screenshots/colombo.jpg" alt="Sri Lanka CAA drone zones around Colombo" loading="lazy">
+          <figcaption>Sri Lanka CAA zones around Colombo.</figcaption>
         </figure>
         <figure>
           <img src="screenshots/layers-panel.jpg" alt="Expanded Layers panel with per-country toggles" loading="lazy">
