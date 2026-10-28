@@ -4,7 +4,7 @@
 
 **[Get it on the Chrome Web Store](https://chromewebstore.google.com/detail/dronemapy-%E2%80%93-drone-zones-o/hdaedlckhmomfjflbialfmdcebmiaejl)** · [dronemapy.com](https://dronemapy.com)
 
-Chrome extension that overlays **drone restriction zones** directly on [mapy.com](https://mapy.com) — the map you already use for planning trips. Covers **Switzerland, Czech Republic, France, Germany, Austria, Poland, Slovakia and Italy**, loading official airspace data live for whatever part of the map you're looking at.
+Chrome extension that overlays **drone restriction zones** directly on [mapy.com](https://mapy.com) — the map you already use for planning trips. Covers **Switzerland, Czech Republic, France, Germany, Austria, Poland, Slovakia, Italy and Sri Lanka**, loading official airspace data live for whatever part of the map you're looking at.
 
 Plan your hike or ride on mapy.com and instantly see where your drone can and cannot fly — no switching between the national drone maps.
 
@@ -70,6 +70,7 @@ Then load it in Chrome:
 | 🇵🇱 Poland | Classic airspace + daily AUP reservations (see note) | [airspace.pansa.pl](https://airspace.pansa.pl) |
 | 🇸🇰 Slovakia | Classic airspace (see note) | [gis.lps.sk](https://gis.lps.sk/vfrm) |
 | 🇮🇹 Italy | Classic airspace via openAIP — free API key required (see note) | [openAIP](https://www.openaip.net) |
+| 🇱🇰 Sri Lanka | CAA geo zones — restricted, authorization, warning, altitude-limit and military | [portal.caa.lk](https://portal.caa.lk/drone/map.html) |
 
 ### Note on Italy coverage
 
@@ -98,7 +99,7 @@ PL and SK layers show **classic airspace (P/R/CTR/TRA…)**, not the legal UAS g
 - Overlays are **crisp vectors drawn on canvas** — no blurry WMS raster layers
 - Rendering waits for the pan/zoom gesture to settle (~350 ms), so the map stays smooth while you move around
 - Switzerland works online out of the box; you can also **download the full Swiss dataset (~13 MB)** from the panel into IndexedDB for instant offline repeat visits
-- Austria's country-wide GeoJSON is fetched once per session and clipped per tile; Poland's airspace feed loads once and includes the day's AUP reservations
+- Austria's country-wide GeoJSON is fetched once per session and clipped per tile; Poland's airspace feed loads once and includes the day's AUP reservations; Sri Lanka's KML is likewise fetched once per session and clipped per tile
 
 ## Disclaimer
 
@@ -112,6 +113,7 @@ This extension is an **informational aid only**. Always verify restrictions on o
 - Poland: [dronemap.pansa.pl](https://dronemap.pansa.pl)
 - Slovakia: [NSAT geo zones](https://letectvo.nsat.sk/bezpilotne-letectvo/zemepisne-oblasti-uas/) + [VFR Manual](https://gis.lps.sk/vfrm)
 - Italy: [d-flight](https://www.d-flight.it/web-app/)
+- Sri Lanka: [CAA drone map](https://portal.caa.lk/drone/map.html)
 
 ## Data sources & attribution
 
@@ -125,6 +127,7 @@ This extension is an **informational aid only**. Always verify restrictions on o
 | Poland | [airspace.pansa.pl](https://airspace.pansa.pl) JSON | PAŻP / PANSA — informational, verify NOTAM/AUP |
 | Slovakia | [gis.lps.sk](https://gis.lps.sk/vfrm) ArcGIS | "VFR Manual, LPS SR š. p." – [gis.lps.sk/vfrm](https://gis.lps.sk/vfrm) |
 | Italy | [openAIP](https://www.openaip.net) API (user's key) | openAIP contributors — airspace, not UAS geo zones |
+| Sri Lanka | [portal.caa.lk](https://portal.caa.lk/drone/map.html) KML | © Civil Aviation Authority of Sri Lanka |
 
 ## Development
 

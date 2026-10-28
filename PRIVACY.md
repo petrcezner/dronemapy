@@ -18,6 +18,7 @@ DroneMapy does **not** collect, store, or transmit any personal data. All proces
   - `airspace.pansa.pl` (Poland — PANSA)
   - `gis.lps.sk` (Slovakia — LPS SR)
   - `api.core.openaip.net` (Italy — openAIP), **only if you save an openAIP API key**
+  - `portal.caa.lk` (Sri Lanka — CAA Sri Lanka)
 - Stores your preferences (layer toggles, opacity) in `chrome.storage.sync`
 - Caches Swiss zone GeoJSON (~13 MB) and per-tile zone data in IndexedDB on your device
 
@@ -51,6 +52,7 @@ button. The key is never sent to the extension author or any third party.
 | `airspace.pansa.pl` | Fetch Polish airspace + daily reservations |
 | `gis.lps.sk` | Fetch Slovak airspace layers |
 | `api.core.openaip.net` | Fetch Italian airspace with your openAIP API key |
+| `portal.caa.lk` | Fetch Sri Lankan drone geo zones |
 
 ## Contact
 

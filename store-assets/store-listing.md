@@ -8,7 +8,7 @@ Everything below is ready to paste into the [Chrome Web Store Developer Dashboar
 
 **Short description** (≤132 chars, from manifest):
 
-> Overlay Swiss, Czech, French, German, Austrian, Polish, Slovak and Italian drone restriction zones on mapy.com
+> Overlay Swiss, Czech, French, German, Austrian, Polish, Slovak, Italian and Sri Lankan drone restriction zones on mapy.com
 
 **Detailed description:**
 
@@ -23,6 +23,7 @@ Everything below is ready to paste into the [Chrome Web Store Developer Dashboar
 > • Poland – PANSA airspace and daily reservations (classic airspace only)
 > • Slovakia – LPS SR airspace layers (classic airspace only)
 > • Italy – openAIP airspace (requires your free openAIP API key; official d-flight zones are not publicly accessible)
+> • Sri Lanka – CAA geo zones (restricted, authorization, warning, altitude-limit, military)
 >
 > FEATURES
 > • Zones drawn as vector overlays on canvas, tiled to the viewport for smooth panning and zooming
@@ -68,6 +69,7 @@ Everything below is ready to paste into the [Chrome Web Store Developer Dashboar
 | Host `airspace.pansa.pl` | Fetches official Polish airspace and daily reservation data (PANSA). |
 | Host `gis.lps.sk` | Fetches official Slovak airspace layers (LPS SR). |
 | Host `api.core.openaip.net` | Fetches Italian airspace data, only when the user saves their own free openAIP API key. |
+| Host `portal.caa.lk` | Fetches official Sri Lankan drone geo zones (Civil Aviation Authority of Sri Lanka). |
 
 **Remote code:** No, I am not using remote code. (All logic ships in the package; network requests fetch data only — GeoJSON/JSON/WFS.)
 
