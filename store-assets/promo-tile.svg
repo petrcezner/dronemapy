@@ -32,5 +32,5 @@
   <!-- wordmark -->
   <text x="190" y="126" font-family="Helvetica, Arial, sans-serif" font-size="38" font-weight="700" fill="#ffffff">DroneMapy</text>
   <text x="192" y="158" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#d4e9dd">Drone no-fly zones on mapy.com</text>
-  <text x="192" y="184" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#9fc7b0">CH · CZ · FR · DE · AT · PL · SK · IT</text>
+  <text x="192" y="184" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#9fc7b0">CH · CZ · FR · DE · AT · PL · SK · IT · LK</text>
 </svg>

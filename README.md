@@ -26,6 +26,10 @@ Swiss BAZL zones around Zurich and the German control zone over Berlin:
 
 ![German DIPUL control zone over Berlin](docs/screenshots/berlin.jpg)
 
+Sri Lanka CAA zones around Colombo, with the restricted port area and the Colombo Airport warning zone:
+
+![Sri Lanka CAA drone zones around Colombo](docs/screenshots/colombo.jpg)
+
 Per-country layers, click pop-ups, units, and offline data live in the expandable panel:
 
 ![Expanded Layers panel with per-country toggles](docs/screenshots/layers-panel.jpg)
