@@ -18,6 +18,7 @@ describe("registry invariants", () => {
       "PL",
       "SK",
       "IT",
+      "LK",
     ]);
     for (const country of COUNTRY_SOURCES) {
       expect(COUNTRY_BY_REGION[country.region]).toBe(country);
@@ -37,6 +38,7 @@ describe("registry invariants", () => {
       c.sources.map((s) => s.cacheKeyPrefix)
     );
     expect(prefixes).toContain("ch/identify");
+    expect(prefixes).toContain("lk/caa");
     expect(prefixes).toContain("cz/HOPs/1");
     expect(prefixes).toContain("cz/Gridy/0");
     expect(prefixes).toContain("cz/chranena_uzemi/0");

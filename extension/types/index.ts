@@ -1,6 +1,6 @@
 import type { Feature, FeatureCollection, Geometry } from "geojson";
 
-export type Region = "CH" | "CZ" | "FR" | "DE" | "AT" | "PL" | "SK" | "IT";
+export type Region = "CH" | "CZ" | "FR" | "DE" | "AT" | "PL" | "SK" | "IT" | "LK";
 /** Every region whose bounding box contains the point — boxes can overlap (e.g. CH/FR border). */
 export type CountryRegion = Region[];
 
@@ -42,6 +42,7 @@ export interface ExtensionSettings {
     poland: boolean;
     slovakia: boolean;
     italy: boolean;
+    sriLanka: boolean;
   };
 }
 
@@ -66,6 +67,7 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
     poland: true,
     slovakia: true,
     italy: true,
+    sriLanka: true,
   },
 };
 
@@ -124,6 +126,7 @@ export type MessageType =
   | { type: "SET_SETTINGS"; settings: Partial<ExtensionSettings> }
   | { type: "GET_SWISS_TILES"; tileIds: string[] }
   | { type: "FETCH_POLAND_AIRSPACE"; feed: "static" | "aup" }
+  | { type: "FETCH_SRI_LANKA_ZONES" }
   | { type: "ITALY_STATUS" }
   | { type: "SET_OPENAIP_KEY"; key: string }
   | { type: "FETCH_ITALY_ZONES"; bounds: MapViewport["bounds"] }

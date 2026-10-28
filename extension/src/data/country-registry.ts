@@ -12,6 +12,7 @@ import { italyCountry } from "./italy";
 import { polandCountry } from "./poland";
 import { isInsideBounds } from "./regions";
 import { slovakiaCountry } from "./slovakia";
+import { sriLankaCountry } from "./sri-lanka";
 import { swissCountry } from "./switzerland";
 
 /**
@@ -28,6 +29,7 @@ export const COUNTRY_BY_REGION: Record<Region, CountrySource> = {
   PL: polandCountry,
   SK: slovakiaCountry,
   IT: italyCountry,
+  LK: sriLankaCountry,
 };
 
 /**
@@ -43,6 +45,7 @@ export const COUNTRY_SOURCES: readonly CountrySource[] = [
   polandCountry,
   slovakiaCountry,
   italyCountry,
+  sriLankaCountry,
 ];
 
 export function detectRegion(lat: number, lng: number): CountryRegion {
