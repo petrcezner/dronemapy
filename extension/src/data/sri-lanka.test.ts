@@ -127,11 +127,17 @@ describe("describeSriLankaAltitude", () => {
     expect(describeSriLankaAltitude("MOD 1NM FL300/GND")).toBe("FL300/GND");
     expect(
       describeSriLankaAltitude("Type: Airport\nMax. Altitude (m): 60, Range: 3.6KM")
-    ).toBe("60m");
+    ).toBe("60 m");
+    expect(describeSriLankaAltitude("Altitude limit: 60m")).toBe("60 m");
+    expect(describeSriLankaAltitude("Altitude limit:\t150m ")).toBe("150 m");
   });
 
   it("is undefined when the description carries no limit", () => {
     expect(describeSriLankaAltitude("Irrigation Department, SLAF")).toBeUndefined();
+    expect(describeSriLankaAltitude("Altitude limit: ")).toBeUndefined();
+    expect(
+      describeSriLankaAltitude("100m from the edge of the Restricted Zone")
+    ).toBeUndefined();
     expect(describeSriLankaAltitude("")).toBeUndefined();
   });
 });

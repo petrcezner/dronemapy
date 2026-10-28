@@ -168,8 +168,10 @@ export function parseSriLankaKml(kml: string): Feature<Geometry>[] {
 export function describeSriLankaAltitude(
   description: string
 ): string | undefined {
-  const max = /Max\.?\s*Altitude\s*\(m\)\s*:\s*(\d+)/i.exec(description);
-  if (max) return `${max[1]}m`;
+  const meters =
+    /Max\.?\s*Altitude\s*\(m\)\s*:\s*(\d+)/i.exec(description) ??
+    /Altitude\s+limit\s*:\s*(\d+)\s*m\b/i.exec(description);
+  if (meters) return `${meters[1]} m`;
   return /\b(UNL|FL\d+|\d+\s?m)\s*\/\s*GND\b/i
     .exec(description)?.[0]
     .replace(/\s+/g, "");
